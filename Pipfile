@@ -10,6 +10,7 @@ llama-index-embeddings-gemini = "*"
 python-dotenv = "*"
 llama-index-embeddings-google-genai = "*"
 llama-index-vector-stores-chroma = "*"
+fastapi = "*"
 
 [dev-packages]
 
