@@ -3,7 +3,7 @@ import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from src.api.websocket import ConnectionManager
+from src.api.presentation.websocket.websocket import ConnectionManager
 from src.core.rag import RAG
 import warnings
 
