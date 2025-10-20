@@ -1,14 +1,10 @@
-import os
-import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-from src.api.presentation.websocket.websocket import ConnectionManager
-from src.core.rag import RAG
+from src.api.presentation.websocket.connection_manager import ConnectionManager
+from src.api.presentation.websocket.chat_handler import handle_request, validate_user_input, handle_rag_response
 import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning)
-load_dotenv()
 
 app = FastAPI(
     title="AI Chat API",
@@ -31,49 +27,24 @@ manager = ConnectionManager()
 
 @router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    api_key = os.getenv("GOOGLE_API_KEY")
-
-    # if not api_key:
-    #     print("No hay api key")
-    #     await manager.send_message("AI: Error - No se encontro la API key", websocket)
-    #     await websocket.close()
-    #     return
-
     try:
         await manager.connect(websocket)
-        rag_instance = RAG(api_key=api_key)
 
         while True:
-            data = await websocket.receive_text()
-            print("Texto recibido: ", data)
+            user_input = await handle_request(websocket)
+            print("User: ", user_input)
 
-            user_message = data.strip()
+            puede_procesar = await validate_user_input(user_input, manager, websocket)
 
-            if not user_message:
-                await manager.send_message("AI: Porfavor escribe un mensaje antes de enviar.", websocket)
+            if not puede_procesar:
                 continue
 
-            if user_message.lower() == "exit":
-                await manager.send_message("AI: Terminando sesion.", websocket)
-                manager.disconnect(websocket)
-                break
-
-            try:
-                response = await asyncio.to_thread(
-                    rag_instance.procesar_query, user_message
-                )
-            except Exception as e:
-                print("Error en la query: ", e)
-                await manager.send_message(f"AI: Error interno - {e}", websocket)
-                continue
-
-            await manager.send_message(f"AI: {response}", websocket)
+            await handle_rag_response(user_input, manager, websocket)
 
     except WebSocketDisconnect as e:
         print("Cliente desconectado")
         manager.disconnect(websocket)
     finally:
         await websocket.close()
-
 
 app.include_router(router)
