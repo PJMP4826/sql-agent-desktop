@@ -1,5 +1,6 @@
 import warnings
 from src.api.routes import websocket_routes
+from src.api.routes import api_routes
 from src.middlewares.cors import add_cors_middleware
 from fastapi import FastAPI
 
@@ -16,3 +17,4 @@ add_cors_middleware(app)
 
 #webSocket
 app.include_router(websocket_routes.router)
+app.include_router(api_routes.router)
