@@ -5,9 +5,7 @@ from dotenv import load_dotenv
 from fastapi import WebSocket, WebSocketDisconnect
 from src.api.presentation.websocket.connection_manager import ConnectionManager
 
-load_dotenv()
-API_KEY = os.getenv("GOOGLE_API_KEY")
-rag_instance = RAG(api_key=API_KEY)
+rag_instance = RAG()
 
 async def handle_request(websocket: WebSocket) -> str:
     data = await websocket.receive_text()

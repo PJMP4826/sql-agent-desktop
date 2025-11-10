@@ -2,17 +2,16 @@ import os
 import logging
 from pathlib import Path
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
-from llama_index.llms.google_genai import GoogleGenAI
-from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.core import StorageContext
 from src.core.chroma_client import Chroma
+from src.config.initialize_models import initialize_models
 
 logging.disable(logging.CRITICAL)
 
 
 class RAG:
-    def __init__(self, api_key: str, docs_path: str = None):
-        self.api_key = api_key
+    def __init__(self, docs_path: str = None):
+        self.modelos = initialize_models()
 
         if docs_path is None:
             current_file = Path(__file__)
@@ -24,6 +23,13 @@ class RAG:
         self._initialize_components()
         self._setup_engine()
 
+    def _initialize_components(self):
+        self.llm = self.modelos["llm"]
+        self.embed_model = self.modelos["embed_model"]
+
+        Settings.llm = self.llm
+        Settings.embed_model = self.embed_model
+
     def cargarRolBot(self) -> str:
         directorio_actual = Path(os.path.dirname(os.path.abspath(__file__)))
 
@@ -33,20 +39,6 @@ class RAG:
             rol_bot = f.read()
 
         return rol_bot
-
-    def _initialize_components(self):
-        if not self.api_key:
-            raise ValueError("No se encontro la api key")
-
-        self.llm = GoogleGenAI(
-            model="gemini-2.5-flash",
-        )
-        self.embed_model = GoogleGenAIEmbedding(
-            model_name="text-embedding-004", api_key=self.api_key
-        )
-
-        Settings.llm = self.llm
-        Settings.embed_model = self.embed_model
 
     def _setup_engine(self):
         try:
