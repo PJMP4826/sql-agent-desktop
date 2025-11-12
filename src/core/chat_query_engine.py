@@ -8,6 +8,7 @@ from llama_index.core.base.llms.types import ChatMessage, MessageRole
 from sqlalchemy import create_engine
 from llama_index.core import SQLDatabase
 from llama_index.core.query_engine import NLSQLTableQueryEngine
+from llama_index.core.chat_engine import CondenseQuestionChatEngine
 
 load_dotenv()
 
@@ -35,6 +36,13 @@ class ChatQueryEngine:
         self.llm = models["llm"]
 
         self.embed_model = models["embed_model"]
+
+        self.memory = ChatMemoryBuffer.from_defaults(
+            chat_history=[
+                ChatMessage(role=MessageRole.SYSTEM, content=self.system_prompt_rol)
+            ],
+            token_limit=2500,
+        )
 
     def _initalize_database(self):
         credentials = initialize_db_credentials()
@@ -68,6 +76,7 @@ class ChatQueryEngine:
             self.db_engine, include_tables=self.include_tables
         )
 
+        #natural language a SQL
         self.sql_query_engine = NLSQLTableQueryEngine(
             sql_database=self.sql_database,
             tables=self.include_tables,
@@ -75,6 +84,14 @@ class ChatQueryEngine:
             embed_model=self.embed_model,
             synthesize_response=True,
             verbose=True,
+        )
+
+        #para responder usando el contexto de la conversacion
+        self.chat_engine = CondenseQuestionChatEngine.from_defaults(
+            query_engine=self.sql_query_engine,
+            memory=self.memory,
+            verbose=False,
+            llm=self.llm,
         )
 
 
