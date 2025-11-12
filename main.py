@@ -1,20 +1,24 @@
-import warnings
-from src.api.routes import websocket_routes
-from src.api.routes import api_routes
-from src.middlewares.cors import add_cors_middleware
-from fastapi import FastAPI
+# import warnings
+# from src.api.routes import websocket_routes
+# from src.api.routes import api_routes
+# from src.middlewares.cors import add_cors_middleware
+# from fastapi import FastAPI
+from src.core.chat_query_engine import ChatQueryEngine
 
-warnings.filterwarnings("ignore", category=UserWarning)
+# warnings.filterwarnings("ignore", category=UserWarning)
 
-app = FastAPI(
-    title="AI Chat API",
-    docs_url="/docs",
-    description="ChatBot de servicio al cliente con base de conocimiento",
-    version="1.0.0",
-)
+# app = FastAPI(
+#     title="AI Chat API",
+#     docs_url="/docs",
+#     description="ChatBot de servicio al cliente con base de conocimiento",
+#     version="1.0.0",
+# )
 
-add_cors_middleware(app)
+# add_cors_middleware(app)
 
-#webSocket
-app.include_router(websocket_routes.router)
-app.include_router(api_routes.router)
+# #webSocket
+# app.include_router(websocket_routes.router)
+# app.include_router(api_routes.router)
+
+chat_engine = ChatQueryEngine()
+chat_engine.run_chat()

@@ -16,6 +16,7 @@ load_dotenv()
 class ChatQueryEngine:
     def __init__(self):
         self.system_prompt_rol = ""
+        self.chat_history: List[Dict] = []
         self.cargarRolBot()
         self._initialize_components()
         self._initalize_database()
@@ -76,7 +77,7 @@ class ChatQueryEngine:
             self.db_engine, include_tables=self.include_tables
         )
 
-        #natural language a SQL
+        # natural language a SQL
         self.sql_query_engine = NLSQLTableQueryEngine(
             sql_database=self.sql_database,
             tables=self.include_tables,
@@ -86,7 +87,7 @@ class ChatQueryEngine:
             verbose=True,
         )
 
-        #para responder usando el contexto de la conversacion
+        # para responder usando el contexto de la conversacion
         self.chat_engine = CondenseQuestionChatEngine.from_defaults(
             query_engine=self.sql_query_engine,
             memory=self.memory,
@@ -94,7 +95,36 @@ class ChatQueryEngine:
             llm=self.llm,
         )
 
+    def procesar_query(self, query: str) -> Optional[str]:
+        try:
+            response = self.chat_engine.chat(query)
 
-# if __name__ == "__main__":
-#     chat_engine = ChatQueryEngine()
-#     print(chat_engine.db_host)
+            # historial
+            self.chat_history.append({"user": query, "assistant": str(response)})
+
+            return str(response)
+        except Exception as e:
+            error_message = f"Error procesando la consulta: {str(e)}"
+            print(error_message)
+            return None
+
+    def run_chat(self):
+        while True:
+            try:
+                query = input("\n Escribe: ")
+
+                if query in ["salir", "exit"]:
+                    print("Cerrando...")
+                    break
+
+                if not query:
+                    print("Pregunta invalida")
+
+                print("Procesando (con contexto)")
+                response = self.procesar_query(query)
+
+                if response:
+                    print(f"\n Respuesta: {response}")
+
+            except Exception as e:
+                print(f"\n Error: {str(e)}")
