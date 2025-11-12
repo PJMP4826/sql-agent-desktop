@@ -1,4 +1,6 @@
+import re
 import os
+import json
 from pathlib import Path
 from dotenv import load_dotenv
 from typing import List, Optional, Dict
@@ -95,18 +97,36 @@ class ChatQueryEngine:
             llm=self.llm,
         )
 
-    def procesar_query(self, query: str) -> Optional[str]:
+    def procesar_query(self, query: str) -> Optional[Dict]:
         try:
-            response = self.chat_engine.chat(query)
+            response = self.chat_engine.chat(
+                f"""
+                Responde estrictamente en JSON. 
+                Usa este formato: {{"status": "success", "data": [...resultados...]}}.
+                Consulta: {query}
+            """
+            )
 
-            # historial
-            self.chat_history.append({"user": query, "assistant": str(response)})
+            text_response = str(response).strip()
 
-            return str(response)
+            # intentar parsear JSON
+            try:
+                json_response = json.loads(text_response)
+            except json.JSONDecodeError:
+                # intenta limpiar
+                json_text = re.search(r"\{.*\}", text_response, re.DOTALL)
+                if json_text:
+                    json_response = json.loads(json_text.group(0))
+                else:
+                    json_response = {"status": "error", "message": text_response}
+
+            self.chat_history.append({"user": query, "assistant": json_response})
+            return json_response
+
         except Exception as e:
             error_message = f"Error procesando la consulta: {str(e)}"
             print(error_message)
-            return None
+            return {"status": "error", "message": error_message}
 
     def run_chat(self):
         while True:
