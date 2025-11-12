@@ -1,4 +1,5 @@
 import os
+import sys
 from dotenv import load_dotenv
 from llama_index.llms.google_genai import GoogleGenAI
 from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
@@ -6,11 +7,17 @@ from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 load_dotenv()
 
 API_KEY = os.getenv("GOOGLE_API_KEY")
-EMBED_MODEL_NAME = os.getenv("EMBED_MODEL_NAME")
-LLM_MODEL = os.getenv("LLM_MODEL")
+EMBED_MODEL_NAME: str = os.getenv("EMBED_MODEL_NAME")
+LLM_MODEL: str = os.getenv("LLM_MODEL")
 
-def validate_env():
-    env_requeridas = ["GOOGLE_API_KEY", "EMBED_MODEL_NAME", "LLM_MODEL"]
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME")
+DB_PORT = os.getenv("DB_PORT")
+DB_HOST = os.getenv("DB_HOST")
+
+
+def validate_env(env_requeridas: list[str]):
     faltantes = []
 
     for var in env_requeridas:
@@ -23,11 +30,26 @@ def validate_env():
             f"Variables de entorno faltantes: {', '.join(faltantes)}"
         )
 
+
 def initialize_models() -> dict:
-    validate_env()
+    env_requeridas = ["GOOGLE_API_KEY", "EMBED_MODEL_NAME", "LLM_MODEL"]
+    validate_env(env_requeridas=env_requeridas)
 
     llm = GoogleGenAI(model=LLM_MODEL)
     embed_model = GoogleGenAIEmbedding(model_name=EMBED_MODEL_NAME, api_key=API_KEY)
 
     return {"llm": llm, "embed_model": embed_model}
+
+
+def initialize_db_credentials() -> dict:
+    env_requeridas = ["DB_USER", "DB_PASSWORD", "DB_NAME", "DB_PORT", "DB_HOST"]
+    validate_env(env_requeridas=env_requeridas)
+
+    return {
+        "db_user": DB_USER,
+        "db_password": DB_PASSWORD,
+        "db_name": DB_NAME,
+        "db_port": DB_PORT,
+        "db_host": DB_HOST,
+    }
 
