@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from typing import List, Optional, Dict
 from src.config.initialize_models import initialize_models, initialize_db_credentials
-from llama_index.core.memory import ChatMemoryBuffer
+from llama_index.core.memory import ChatSummaryMemoryBuffer
 from llama_index.core.base.llms.types import ChatMessage, MessageRole
 from sqlalchemy import create_engine
 from llama_index.core import SQLDatabase
@@ -40,11 +40,8 @@ class ChatQueryEngine:
 
         self.embed_model = models["embed_model"]
 
-        self.memory = ChatMemoryBuffer.from_defaults(
-            chat_history=[
-                ChatMessage(role=MessageRole.SYSTEM, content=self.system_prompt_rol)
-            ],
-            token_limit=2500,
+        self.memory = ChatSummaryMemoryBuffer.from_defaults(
+            llm=self.llm, token_limit=1500
         )
 
     def _initalize_database(self):
@@ -85,7 +82,7 @@ class ChatQueryEngine:
             tables=self.include_tables,
             llm=self.llm,
             embed_model=self.embed_model,
-            synthesize_response=True,
+            synthesize_response=False,
             verbose=True,
         )
 
