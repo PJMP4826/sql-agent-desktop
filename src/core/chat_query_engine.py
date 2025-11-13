@@ -112,74 +112,74 @@ class ChatQueryEngine:
             self.storage_context.persist(persist_dir=str(self.persist_dir))
 
             # para responder usando el contexto de la conversacion
-            self.chat_engine = CondenseQuestionChatEngine.from_defaults(
-                query_engine=self.sql_query_engine,
-                memory=self.memory,
-                verbose=False,
-                llm=self.llm,
-            )
+            # self.chat_engine = CondenseQuestionChatEngine.from_defaults(
+            #     query_engine=self.sql_query_engine,
+            #     memory=self.memory,
+            #     verbose=False,
+            #     llm=self.llm,
+            # )
             
         except Exception as e:
             print("Error al inicializar components db: ", e)
 
-    def procesar_query(self, query: str) -> Optional[str]:
-        try:
-            response = self.chat_engine.chat(query)
+    # def procesar_query(self, query: str) -> Optional[str]:
+    #     try:
+    #         response = self.chat_engine.chat(query)
 
-            return str(response)
-        except Exception as e:
-            error_msg = f"Error procesando la consulta: {str(e)}"
-            print(error_msg)
-            return None
+    #         return str(response)
+    #     except Exception as e:
+    #         error_msg = f"Error procesando la consulta: {str(e)}"
+    #         print(error_msg)
+    #         return None
 
-    def procesar_query_json(self, query: str) -> Optional[Dict]:
-        try:
-            response = self.chat_engine.chat(
-                f"""
-                Responde estrictamente en JSON. 
-                Usa este formato: {{"status": "success", "data": [...resultados...]}}.
-                Consulta: {query}
-            """
-            )
+    # def procesar_query_json(self, query: str) -> Optional[Dict]:
+    #     try:
+    #         response = self.chat_engine.chat(
+    #             f"""
+    #             Responde estrictamente en JSON. 
+    #             Usa este formato: {{"status": "success", "data": [...resultados...]}}.
+    #             Consulta: {query}
+    #         """
+    #         )
 
-            text_response = str(response).strip()
+    #         text_response = str(response).strip()
 
-            # intentar parsear JSON
-            try:
-                json_response = json.loads(text_response)
-            except json.JSONDecodeError:
-                # intenta limpiar
-                json_text = re.search(r"\{.*\}", text_response, re.DOTALL)
-                if json_text:
-                    json_response = json.loads(json_text.group(0))
-                else:
-                    json_response = {"status": "error", "message": text_response}
+    #         # intentar parsear JSON
+    #         try:
+    #             json_response = json.loads(text_response)
+    #         except json.JSONDecodeError:
+    #             # intenta limpiar
+    #             json_text = re.search(r"\{.*\}", text_response, re.DOTALL)
+    #             if json_text:
+    #                 json_response = json.loads(json_text.group(0))
+    #             else:
+    #                 json_response = {"status": "error", "message": text_response}
 
-            self.chat_history.append({"user": query, "assistant": json_response})
-            return json_response
+    #         self.chat_history.append({"user": query, "assistant": json_response})
+    #         return json_response
 
-        except Exception as e:
-            error_message = f"Error procesando la consulta: {str(e)}"
-            print(error_message)
-            return {"status": "error", "message": error_message}
+    #     except Exception as e:
+    #         error_message = f"Error procesando la consulta: {str(e)}"
+    #         print(error_message)
+    #         return {"status": "error", "message": error_message}
 
-    def run_chat(self):
-        while True:
-            try:
-                query = input("\n Escribe: ")
+    # def run_chat(self):
+    #     while True:
+    #         try:
+    #             query = input("\n Escribe: ")
 
-                if query in ["salir", "exit"]:
-                    print("Cerrando...")
-                    break
+    #             if query in ["salir", "exit"]:
+    #                 print("Cerrando...")
+    #                 break
 
-                if not query:
-                    print("Pregunta invalida")
+    #             if not query:
+    #                 print("Pregunta invalida")
 
-                print("Procesando (con contexto)")
-                response = self.procesar_query(query)
+    #             print("Procesando (con contexto)")
+    #             response = self.procesar_query(query)
 
-                if response:
-                    print(f"\n Respuesta: {response}")
+    #             if response:
+    #                 print(f"\n Respuesta: {response}")
 
-            except Exception as e:
-                print(f"\n Error: {str(e)}")
+    #         except Exception as e:
+    #             print(f"\n Error: {str(e)}")

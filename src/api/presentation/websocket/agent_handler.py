@@ -15,24 +15,30 @@ class AgentHandler:
         self._create_agent()
 
     def _create_tools(self):
-        consulta_sql_tool = FunctionTool.from_defaults(
-            fn=self.chat_engine.procesar_query,
+        consultar_base_datos = FunctionTool.from_defaults(
+            fn=self._consultar_db_directo,
             name="consultar_base_datos",
             description=(
-                "Herramienta para consultar la base de datos de CFDIs (facturas electrónicas). "
+                "Consulta la base de datos de CFDIs (facturas electrónicas mexicanas) usando lenguaje natural. "
+                "Esta herramienta traduce automáticamente tu pregunta a SQL y ejecuta la consulta.\n\n"
                 "Úsala cuando el usuario pregunte sobre:\n"
-                "- Ventas, facturas, totales\n"
-                "- Información de clientes\n"
-                "- Pagos recibidos\n"
-                "- Impuestos y deducciones\n"
-                "- Estadísticas o reportes\n"
-                "- Cualquier dato relacionado con facturación\n\n"
-                "Input: Pregunta en lenguaje natural sobre los datos fiscales.\n"
-                "Output: Respuesta con los datos solicitados y análisis."
+                "- Ventas, ingresos, facturación o totales\n"
+                "- Información de clientes o receptores\n"
+                "- Pagos recibidos y métodos de pago\n"
+                "- Impuestos (IVA, ISR, retenciones) y deducciones\n"
+                "- Estadísticas, reportes o análisis de datos fiscales\n"
+                "- Conceptos facturados, productos o servicios\n"
+                "- Fechas, periodos o rangos temporales\n\n"
+                "IMPORTANTE:\n"
+                "- Pasa la pregunta COMPLETA del usuario tal cual\n"
+                "- NO intentes reformular o simplificar la pregunta\n"
+                "- Incluye todos los detalles: fechas, nombres, montos, etc.\n\n"
+                "Entrada: Pregunta en lenguaje natural (ej: '¿Cuánto vendí en enero 2024?')\n"
+                "Salida: Datos estructurados con la respuesta a la consulta"
             ),
         )
 
-        self.tools = [consulta_sql_tool]
+        self.tools = [consultar_base_datos]
 
     def _create_agent(self):
         self.agent = FunctionAgent(
@@ -41,6 +47,15 @@ class AgentHandler:
             tools=self.tools,
             system_prompt=self.system_prompt,
         )
+
+    def _consultar_db_directo(self, query: str):
+        try:
+            response = self.chat_engine.sql_query_engine.query(query)
+
+            return str(response)
+        except Exception as e:
+            error_msg = f"Error procesando la consulta: {str(e)}"
+            print(error_msg)
 
     async def chat(self, mensaje: str) -> str:
         try:
