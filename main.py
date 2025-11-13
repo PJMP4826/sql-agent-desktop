@@ -3,7 +3,9 @@
 # from src.api.routes import api_routes
 # from src.middlewares.cors import add_cors_middleware
 # from fastapi import FastAPI
+import asyncio
 from src.core.chat_query_engine import ChatQueryEngine
+from src.api.presentation.websocket.agent_handler import AgentHandler
 
 # warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -20,5 +22,15 @@ from src.core.chat_query_engine import ChatQueryEngine
 # app.include_router(websocket_routes.router)
 # app.include_router(api_routes.router)
 
-chat_engine = ChatQueryEngine()
-chat_engine.run_chat()
+# chat_engine = ChatQueryEngine()
+# chat_engine.run_chat()
+async def main():
+    try:
+        agent_handler = AgentHandler()
+        await agent_handler.run_chat()
+    except Exception as e:
+        print(f"\n❌ Error fatal al inicializar: {str(e)}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

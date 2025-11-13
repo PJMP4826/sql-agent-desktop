@@ -106,7 +106,7 @@ class ChatQueryEngine:
                 llm=self.llm,
                 embed_model=self.embed_model,
                 synthesize_response=False,
-                verbose=False,
+                verbose=True,
             )
 
             self.storage_context.persist(persist_dir=str(self.persist_dir))
