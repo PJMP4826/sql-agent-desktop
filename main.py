@@ -29,7 +29,7 @@ async def main():
         agent_handler = AgentHandler()
         await agent_handler.run_chat()
     except Exception as e:
-        print(f"\n❌ Error fatal al inicializar: {str(e)}")
+        print(f"\n Error fatal al inicializar: {str(e)}")
 
 
 if __name__ == "__main__":

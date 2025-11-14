@@ -72,24 +72,21 @@ class ChatQueryEngine:
             db_port: str = credentials["db_port"]
             db_host: str = credentials["db_host"]
 
+            connection_url = (
+                f"mssql+pyodbc://{db_user}:{db_password}"
+                f"@{db_host}:{db_port}/{db_name}"
+                f"?driver=ODBC+Driver+17+for+SQL+Server"
+            )
+
             self.db_engine = create_engine(
-                f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}?client_encoding=UTF8",
+                connection_url,
                 echo=False,
                 pool_pre_ping=True,
                 pool_recycle=3600,
             )
 
             self.include_tables = [
-                "cancelaciones",
-                "cfdisrelacionados",
-                "conceptos",
-                "configuracion",
-                "documentos",
-                "documentosrelpago",
-                "emisor",
-                "impuestos",
-                "pagos",
-                "receptor",
+                "Emisor",
             ]
 
             self._create_storage_context()
@@ -118,7 +115,7 @@ class ChatQueryEngine:
             #     verbose=False,
             #     llm=self.llm,
             # )
-            
+
         except Exception as e:
             print("Error al inicializar components db: ", e)
 
@@ -136,7 +133,7 @@ class ChatQueryEngine:
     #     try:
     #         response = self.chat_engine.chat(
     #             f"""
-    #             Responde estrictamente en JSON. 
+    #             Responde estrictamente en JSON.
     #             Usa este formato: {{"status": "success", "data": [...resultados...]}}.
     #             Consulta: {query}
     #         """
