@@ -34,22 +34,16 @@ class AgentHandler:
             fn=self._consultar_db_directo,
             name="consultar_base_datos",
             description=(
-                "Consulta la base de datos de CFDIs (facturas electrónicas mexicanas) usando lenguaje natural. "
-                "Esta herramienta traduce automáticamente tu pregunta a SQL y ejecuta la consulta.\n\n"
-                "Úsala cuando el usuario pregunte sobre:\n"
-                "- Ventas, ingresos, facturación o totales\n"
-                "- Información de clientes o receptores\n"
-                "- Pagos recibidos y métodos de pago\n"
-                "- Impuestos (IVA, ISR, retenciones) y deducciones\n"
-                "- Estadísticas, reportes o análisis de datos fiscales\n"
-                "- Conceptos facturados, productos o servicios\n"
-                "- Fechas, periodos o rangos temporales\n\n"
-                "IMPORTANTE:\n"
-                "- Pasa la pregunta COMPLETA del usuario tal cual\n"
-                "- NO intentes reformular o simplificar la pregunta\n"
-                "- Incluye todos los detalles: fechas, nombres, montos, etc.\n\n"
-                "Entrada: Pregunta en lenguaje natural (ej: '¿Cuánto vendí en enero 2024?')\n"
-                "Salida: Datos estructurados con la respuesta a la consulta"
+                "Consulta la base de datos de CONTPAQi® Comercial usando lenguaje natural"
+                "Traduce automáticamente la pregunta a SQL y ejecuta la consulta.\n\n"
+                "Úsala para preguntas sobre:\n"
+                "- Ventas, facturación, ingresos\n"
+                "- Clientes, proveedores, agentes\n"
+                "- Inventarios, productos, almacenes\n"
+                "- Documentos, pagos, saldos\n"
+                "- Análisis, reportes, estadísticas\n\n"
+                "Entrada: Pregunta completa en lenguaje natural\n"
+                "Salida: Datos estructurados/lenguaje natural con la respuesta"
             ),
         )
 
