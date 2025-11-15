@@ -33,7 +33,7 @@ class RAG:
     def cargarRolBot(self) -> str:
         directorio_actual = Path(os.path.dirname(os.path.abspath(__file__)))
 
-        ruta_absoluta_txt = directorio_actual.parent / "config" / "rol_bot.txt"
+        ruta_absoluta_txt = directorio_actual.parent / "config" / "rol_bot_table_selector.txt"
 
         with open(ruta_absoluta_txt, "r", encoding="utf-8") as f:
             rol_bot = f.read()
@@ -43,7 +43,7 @@ class RAG:
     def _setup_engine(self):
         try:
 
-            chroma = Chroma("maya_tech_docs", "./chroma_db")
+            chroma = Chroma("sql_bot", "./sql_bot")
 
             if chroma.createChromaCollection().count() == 0:
                 print("Indexando documentos en la BD")

@@ -12,7 +12,7 @@ class CLI:
             return
 
         try:
-            rag_instance = RAG(api_key=api_key)
+            rag_instance = RAG()
             
             while True:
                 user_input = input("Tú: ")
