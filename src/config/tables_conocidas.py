@@ -68,3 +68,23 @@ tables_conocidas = [
     "nubeCuentas",
     "nubeDiarios",
 ]
+
+
+include_tables_intelisat_test = [
+    "Cancelaciones",
+    "CfdisRelacionados",
+    "Clientes",
+    "Conciliacion",
+    "ConfiguracionUsuario",
+    "Contactos",
+    "DocumentoConciliacion",
+    "Documentos",
+    "DocumentosRelPago",
+    "EfosEmpresa",
+    "Emisor",
+    "ExclusionConciliacion",
+    "Impuestos",
+    "MovimientoConciliacion",
+    "Pagos",
+    "Receptor",
+]

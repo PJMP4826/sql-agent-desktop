@@ -3,7 +3,7 @@ identificar qué tablas de una base de datos son relevantes
 para responder la peticion del usuario.
 
 Tu output debe ser unicamente un array de 
-strings, sin texto adicional, sin explicaciones, 
+strings, sin texto adicional, en texto plano, sin explicaciones, 
 sin comentarios, sin SQL.
 Ejemplo de salida válida:
 

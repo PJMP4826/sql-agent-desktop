@@ -12,6 +12,7 @@ class SchemaLoader:
     def inferir_tables_from_query(self, user_query: str):
         try:
             response = self.rag_instance.procesar_query(user_input=user_query)
+            print("Tabla inferida por el RAG: ", response)
 
             tables_selected_list = json.loads(response)
 

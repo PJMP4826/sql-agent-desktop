@@ -1,38 +1,23 @@
-import re
-import os
-import json
 from pathlib import Path
 from dotenv import load_dotenv
-from typing import List, Optional, Dict
+from typing import List, Dict
 from src.config.initialize_models import initialize_models, initialize_db_credentials
 from llama_index.core.memory import ChatSummaryMemoryBuffer
-from llama_index.core.base.llms.types import ChatMessage, MessageRole
 from sqlalchemy import create_engine
-from llama_index.core import SQLDatabase, StorageContext, PromptTemplate
+from llama_index.core import SQLDatabase, StorageContext
 from llama_index.core.query_engine import NLSQLTableQueryEngine
-from llama_index.core.chat_engine import CondenseQuestionChatEngine
-from pathlib import Path
+# from llama_index.core.base.llms.types import ChatMessage, MessageRole
+# from llama_index.core.chat_engine import CondenseQuestionChatEngine
 
 load_dotenv()
 
 
 class ChatQueryEngine:
-    def __init__(self):
-        self.system_prompt_rol = ""
+    def __init__(self, include_tables: List[str]):
         self.chat_history: List[Dict] = []
-        self.cargarRolBot()
+        self.include_tables: List[str] = include_tables
         self._initialize_components()
         self._initalize_database()
-
-    def cargarRolBot(self):
-        directorio_actual = Path(os.path.dirname(os.path.abspath(__file__)))
-
-        ruta_absoluta_txt = directorio_actual.parent / "config" / "rol_bot_sql.txt"
-
-        with open(ruta_absoluta_txt, "r", encoding="utf-8") as f:
-            rol_bot = f.read()
-
-        self.system_prompt_rol = rol_bot
 
     def _create_storage_context(self):
         self.persist_dir = Path("./storage/sql_index")
@@ -85,104 +70,16 @@ class ChatQueryEngine:
                 pool_recycle=3600,
             )
 
-            self.include_tables_intelisat_test = [
-                "Cancelaciones",
-                "CfdisRelacionados",
-                "Clientes",
-                "Conciliacion",
-                "ConfiguracionUsuario",
-                "Contactos",
-                "DocumentoConciliacion",
-                "Documentos",
-                "DocumentosRelPago",
-                "EfosEmpresa",
-                "Emisor",
-                "ExclusionConciliacion",
-                "Impuestos",
-                "MovimientoConciliacion",
-                "Pagos",
-                "Receptor",
-            ]
-
-            self.include_tables = [
-                "admAcumulados",
-                "admAcumuladosTipos",
-                "admAgentes",
-                "admAlmacenes",
-                "admAperturas",
-                "admAsientosContables",
-                "admAsocAcumConceptos",
-                "admAsocCargosAbonos",
-                "admAsocCargosAbonosImp",
-                "admAsocLigasPagos",
-                "admBanderas",
-                "admBitacoras",
-                "admCajas",
-                "admCapasProducto",
-                "admCaracteristicas",
-                "admCaracteristicasValores",
-                "admClasificaciones",
-                "admClasificacionesValores",
-                "admClientes",
-                "admComponentesPaquete",
-                "admConceptos",
-                "admConceptosBack",
-                "admConfigProveedoresNube",
-                "admConversionesUnidad",
-                "admCostosHistoricos",
-                "admCuentasBancarias",
-                "admDatosAddenda",
-                "admDocumentos",
-                "admDocumentosModelo",
-                "admDocumentosModeloBack",
-                "admDomicilios",
-                "admEjercicios",
-                "admExistenciaCosto",
-                "admFoliosDigitales",
-                "admFormasPago",
-                "admLigasPago",
-                "admMaximosMinimos",
-                "admMonedas",
-                "admMovimientos",
-                "admMovimientosCapas",
-                "admMovimientosContables",
-                "admMovimientosPrepoliza",
-                "admMovimientosSerie",
-                "admMovtosBancarios",
-                "admMovtosCEPs",
-                "admMovtosInvFisico",
-                "admMovtosInvFisicoSerieCa",
-                "admPagoNotas",
-                "admParametros",
-                "admParametrosBack",
-                "admPreciosCompra",
-                "admPrepolizas",
-                "admProductos",
-                "admProductosDetalles",
-                "admProductosFotos",
-                "admPromociones",
-                "admProyectos",
-                "admSATSegmentos",
-                "admTiposCambio",
-                "admUnidadesMedidaPeso",
-                "admVistasCampos",
-                "admVistasConsultas",
-                "admVistasPorModulo",
-                "admVistasRecursos",
-                "admVistasRelaciones",
-                "admVistasTablas",
-                "nubeCuentas",
-                "nubeDiarios",
-            ]
-
             self._create_storage_context()
+
+            print("Tables para el engine: ", self.include_tables)
 
             self.sql_database = SQLDatabase(
                 self.db_engine,
                 include_tables=self.include_tables,
             )
 
-            mostrar_sql = False
+            mostrar_sql = True
             # natural language a SQL
             self.sql_query_engine = NLSQLTableQueryEngine(
                 sql_database=self.sql_database,

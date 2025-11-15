@@ -25,22 +25,22 @@ from src.cli.main import CLI
 
 # chat_engine = ChatQueryEngine()
 # chat_engine.run_chat()
-# async def main():
-#     try:
-#         agent_handler = AgentHandler()
-#         await agent_handler.run_chat()
-#     except Exception as e:
-#         print(f"\n Error fatal al inicializar: {str(e)}")
-
-
-# if __name__ == "__main__":
-#     asyncio.run(main())
+async def main():
+    try:
+        agent_handler = AgentHandler()
+        await agent_handler.run_chat()
+    except Exception as e:
+        print(f"\n Error fatal al inicializar: {str(e)}")
 
 
 if __name__ == "__main__":
+    asyncio.run(main())
 
-    try:
-        bot = CLI()
-        bot.main()
-    except Exception as e:
-        print(f"Error faltal {e}")
+
+# if __name__ == "__main__":
+
+#     try:
+#         bot = CLI()
+#         bot.main()
+#     except Exception as e:
+#         print(f"Error faltal {e}")

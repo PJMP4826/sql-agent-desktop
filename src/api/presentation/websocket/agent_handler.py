@@ -1,18 +1,33 @@
+import os
 import asyncio
 from src.core.chat_query_engine import ChatQueryEngine
 from llama_index.core.agent.workflow import ReActAgent
 from llama_index.core.tools import FunctionTool
 from llama_index.core.agent.workflow import FunctionAgent
 from src.config.initialize_models import initialize_models
+from src.core.schema_loader import SchemaLoader
+from pathlib import Path
 
 
 class AgentHandler:
     def __init__(self):
-        self.chat_engine = ChatQueryEngine()
-        self.system_prompt = self.chat_engine.system_prompt_rol
+        self.table_retriever = SchemaLoader()
+        self.cargarRolBot()
         self.models = initialize_models()
         self._create_tools()
         self._create_agent()
+
+    def cargarRolBot(self):
+        directorio_actual = Path(os.path.dirname(os.path.abspath(__file__)))
+
+        ruta_absoluta_txt = (
+            directorio_actual.parent.parent.parent / "config" / "rol_bot_sql.txt"
+        )
+
+        with open(ruta_absoluta_txt, "r", encoding="utf-8") as f:
+            rol_bot = f.read()
+
+        self.system_prompt_rol = rol_bot
 
     def _create_tools(self):
         consultar_base_datos = FunctionTool.from_defaults(
@@ -45,12 +60,17 @@ class AgentHandler:
             name="Agente CFDI",
             llm=self.models["llm"],
             tools=self.tools,
-            system_prompt=self.system_prompt,
+            system_prompt=self.system_prompt_rol,
         )
 
     def _consultar_db_directo(self, query: str):
         try:
-            response = self.chat_engine.sql_query_engine.query(query)
+            include_tables: list[str] = self.table_retriever.inferir_tables_from_query(
+                query
+            )
+            chat_engine = ChatQueryEngine(include_tables=include_tables)
+            chat_engine.include_tables = include_tables
+            response = chat_engine.sql_query_engine.query(query)
 
             return str(response)
         except Exception as e:
