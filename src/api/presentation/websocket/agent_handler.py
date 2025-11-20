@@ -6,6 +6,7 @@ from llama_index.core.tools import FunctionTool
 from llama_index.core.agent.workflow import FunctionAgent
 from src.config.initialize_models import initialize_models
 from src.core.schema_loader import SchemaLoader
+from llama_index.core.workflow import Context
 from pathlib import Path
 
 
@@ -56,14 +57,22 @@ class AgentHandler:
             tools=self.tools,
             system_prompt=self.system_prompt_rol,
         )
+        self.context_chat_history = Context(self.agent)
 
     def _consultar_db_directo(self, query: str):
         try:
             include_tables: list[str] = self.table_retriever.inferir_tables_from_query(
                 query
             )
-            chat_engine = ChatQueryEngine(include_tables=include_tables)
-            chat_engine.include_tables = include_tables
+            
+            business_context = self.table_retriever.obtener_contexto_negocio(
+                query, include_tables
+            )
+
+            chat_engine = ChatQueryEngine(
+                include_tables=include_tables, business_context=business_context
+            )
+
             response = chat_engine.sql_query_engine.query(query)
 
             return str(response)
@@ -73,7 +82,7 @@ class AgentHandler:
 
     async def chat(self, mensaje: str) -> str:
         try:
-            response = await self.agent.run(mensaje)
+            response = await self.agent.run(mensaje, ctx=self.context_chat_history)
             return str(response)
         except Exception as e:
             print(f"Error en el agente: {str(e)}")

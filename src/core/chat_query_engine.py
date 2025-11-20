@@ -6,6 +6,8 @@ from llama_index.core.memory import ChatSummaryMemoryBuffer
 from sqlalchemy import create_engine
 from llama_index.core import SQLDatabase, StorageContext
 from llama_index.core.query_engine import NLSQLTableQueryEngine
+from llama_index.core.prompts import PromptTemplate
+
 # from llama_index.core.base.llms.types import ChatMessage, MessageRole
 # from llama_index.core.chat_engine import CondenseQuestionChatEngine
 
@@ -13,9 +15,10 @@ load_dotenv()
 
 
 class ChatQueryEngine:
-    def __init__(self, include_tables: List[str]):
+    def __init__(self, include_tables: List[str], business_context: str):
         self.chat_history: List[Dict] = []
         self.include_tables: List[str] = include_tables
+        self.business_context = business_context
         self._initialize_components()
         self._initalize_database()
 
@@ -79,6 +82,41 @@ class ChatQueryEngine:
                 include_tables=self.include_tables,
             )
 
+            contpaq_context = f"""
+                Dado el siguiente esquema de base de datos (tablas y columnas):
+
+                {{schema}}
+
+                Tu objetivo es convertir la pregunta del usuario en una consulta SQL válida.
+
+                REGLAS ESTRICTAS:
+                1. NO inventes columnas, NO inventes tablas. Usa únicamente los nombres EXACTOS del esquema.
+                2. NO asumas relaciones entre tablas. SOLO puedes conectar tablas mediante columnas que coincidan exactamente en nombre y tipo lógico.
+                3. Si no hay forma confiable de relacionar varias tablas, limita la consulta a una sola tabla.
+                4. Usa subconsultas únicamente si es estrictamente necesario y SOLO si existe una columna coincidente entre tablas.
+                5. Prefiere consultas simples a consultas complejas. No optimices.
+                6. NO agregues texto explicativo. NO agregues comentarios. SOLO genera SQL.
+                7. NO uses funciones o sintaxis fuera de SQL Server.
+                8. Si la pregunta del usuario es ambigua, asume la interpretación mas simple basada en el esquema.
+                9. Siempre usa un TOP 20 para reducir la cantidad de registros que consultas
+
+                FORMATO DE RESPUESTA:
+                Devuelve exclusivamente una consulta SQL valida. Nada mas.
+
+                Pregunta del usuario:
+                {{query_str}}
+
+                ContextoNegocio:
+                {self.business_context}
+
+                Usa el ContextoNegocio para entender qué significan 
+                los campos de las tablas y generar el SQL correcto.
+
+                SQLQuery:  
+                """
+
+            prompt_sql = PromptTemplate(contpaq_context)
+
             mostrar_sql = True
             # natural language a SQL
             self.sql_query_engine = NLSQLTableQueryEngine(
@@ -86,6 +124,7 @@ class ChatQueryEngine:
                 tables=self.include_tables,
                 llm=self.llm,
                 embed_model=self.embed_model,
+                text_to_sql_prompt=prompt_sql,
                 synthesize_response=False,
                 verbose=mostrar_sql,
             )

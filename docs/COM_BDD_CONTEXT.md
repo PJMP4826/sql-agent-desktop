@@ -305,7 +305,7 @@ Almacena productos, servicios y paquetes. CIDPRODUCTO es el identificador único
 ### Flujo de Ventas
 Un documento de ventas inicia con un Cliente (admClientes con CTIPOCLIENTE=1 o 2). Se selecciona un Concepto (admConceptos) que determina el comportamiento del documento. El Concepto referencia un Documento Modelo (admDocumentosModelo) que define si es Cotización, Pedido, Remisión o Factura.
 
-El documento se crea en admDocumentos con CIDDOCUMENTODE apuntando al modelo correspondiente. Cada línea del documento es un registro en admMovimientos que referencia un Producto (admProductos) y un Almacén (admAlmacenes). Si el documento afecta inventario, CAFECTADOINVENTARIO se marca como 1.
+Los documentos se crean en admDocumentos con CIDDOCUMENTODE que indica el tipo de documento. Por ejemplo, el 4 corresponde a facturas, 1 a cotizaciones, 2 a pedidos,3 a remisiones apuntando al modelo correspondiente. Cada línea del documento es un registro en admMovimientos que referencia un Producto (admProductos) y un Almacén (admAlmacenes). Si el documento afecta inventario, CAFECTADOINVENTARIO se marca como 1.
 
 Las ventas pueden tener un Agente asignado (admAgentes) tanto a nivel documento como a nivel cliente. Las comisiones se calculan usando los porcentajes definidos en el agente, cliente o producto según la configuración.
 
@@ -380,6 +380,85 @@ Los documentos pueden precontabilizarse (CIDPREPOLIZA) o contabilizarse completa
 ---
 
 ## Consideraciones
+
+admDocumentos: Esta tabla contiene los campos con los que se crean los diferentes documentos. Existen distinto tipos de documentos como Facturas, cotizaciones, pedidos, remisiones, devoluciones de ventas, notas de crédito, compras, órdenes de Compra, etcétera. Cada uno de los diferentes tipos de documentos vienen dados o identificados por el campo ciddocumentode, dónde su tipo se encuentra en la tabla relacionada admDocumentosModelos. También se pueden tener más de un mismo tipo de documento y estos están relacionados en la tabla admConceptos. Al realizarse un Documento de cualquier tipo, los productos o servicios que incluyen, vienen detallados en la tabla admMovimientos e identificados por el identificados CidDocumento. Los productos y/o servicios están detallados en la tabla admMovimientos. Los productos se encuentran en la tabla admProductos y vienen relacionados por el campo CidProducto. Un documento puede pertenecer a un Agente, el cual se identifica con el campo CidAgente y relacionado a la tabla admAgentes.
+El campo CidDocumento identifica un documento Único.
+El Campo CidDocumentoDe representa el tipo de documento, como son las ventas, compras, cotizaciones, pedidos, remisiones, etc. La tabla que tiene este tipo de documentos se llama admDocumentosModelos y el campo con el que se relacionan se llama CidDocumentoDe. Esta tabla contiene los documentos modelos y un documento modelo se refiere a compra, venta, cotizaciones, pedidos, remisiones, etc.
+El campo CidConceptoDocumento nos da más detalles de todos los tipos de documentos, ya que puedo tener muchos tipos de documentos e incluso muchos del mismo tipo, es decir, puedo tener muchos tipos ventas, pedidos, compras, etc. La tabla que contiene los distintos conceptos con sus detalles es admConceptos
+El campo CidClienteProveedor nos indica el identificador del cliente al que pertenece el Documento. Esta tabla contiene los campos de los Clientes y Proveedores y se llama admClientes
+El campo CidMoneda nos da la moneda en la que fue hecha el documento y se relaciona con la tabla admMonedas, la cual contiene los detalles de las distintas monedas
+El campo CidAgente nos da el agente al que pertenece el documento y se relaciona con la tabla admAgentes, el cual contiene más información detallada de los Agentes
+El campo Ccancelado indica el estatus del documento. Un documento con valor 0 indica que está vigente y con valor 1 indica que está cancelado
+El campo Cneto es el importe neto del documento
+El campo Cimpuesto1 normalmente es el IVA del documento
+El campo Ctotal es el total del documento
+El Campo CMetodoPag es la forma de pago de los documentos que son timbrados ante el SAT. El 01 es Efectivo, 02 es Cheque, 03 es Transferencia, 04 Tarjeta de Débito, 28 Tarjeta de Crédito
+El Campo CcantParci nos indica el método de pago del documento donde 1 es contado o PUE y 2 crédito o PPD
+
+admMovimientos. Tabla de Movimientos. Esta tabla contiene los movimientos realizados en los diferentes documentos y la tabla de documentos es admDocumentos. En los documentos hay dos clases de movimientos: Reales y Ocultos; ambos movimientos se guardan en la misma tabla. En esta tabla se explica en qué consisten.
+Movimiento real: Son aquellos capturados por el usuario y que deben ser impresos en las formas preimpresas y aparecer en los reportes de Ventas y de Compras. Se identifican por que el campo cMovtoOculto = 0. cIdMovtoOwner = Vacío, cIdDocumento = Identificador del documento al que pertenece.
+Movimiento oculto: Son aquellos generados por el sistema. Un movimiento oculto se genera para el movimiento del almacén destino en un Traspaso, los detalles de las características y los componentes de un Paquete, por ejemplo. Se identifican por que cMovtoOculto = 1, cIdDocumento = Vacío, cIdMovtoOwner = identificador del movimiento real que lo generó
+Las diferencias entre los movimientos reales y ocultos sirven para que los reportes y procesos generales de ventas, compras e inventario sólo recuperen los movimientos que necesiten, sean reales u ocultos.
+Todo tipo de documento tiene su detalle en esta tabla y es identificado por el CidDocumento de la tabla admDocumentos. Los productos y/p servicios vienen identificados por el campo CidProducto de la tabla admProductos.
+El campo CidMovimiento es el identificador único del movimiento
+El campo CidDocunento es el identificador del documento de la tabla admDocumentos. Identificador del documento dueño del movimiento. Nota: Cuando el movimiento es oculto este campo debe estar vacío.
+El campo CNumeroMovimiento es el consecutivo del movimiento del documento, ya que un documento puede tener más de un registro.
+El campo CidDocumentoDe es Tipo de documento del concepto de documento. Referencia de la tabla admDocumentosModelos
+El campo CidProducto es el identificador del Producto o servicio y está referenciado en la tabla admProductos
+El campo CidAlmacen es el identificador del almacén al que pertenece el movimiento. Nota: Algunas veces este campo está vacío porque algunos movimientos no llevan almacén o porque su documento lo lleva
+El campo CidUnidad es el identificador de la unidad de medida y peso del producto o servicio y está referenciado a la tabla admUnidadesMedidaPeso. Identificador de unidad de peso y medida que representa en qué unidad se captura el movimiento. Nota: Puede ser solamente la base o una convertible.
+El campo CUnidades es la cantidad del movimiento. Cantidad de unidad base del movimiento. Se diferencia del campo cUnidadesCapturadas porque cUnidades siempre está en la unidad base y cUnidadesCapturadas puede estar en una unidad con equivalencia con la base.
+El campo CUnidadesCapturadas es Cantidad de unidades capturadas por el usuario. Se diferencia del campo cUnidades porque cUnidades siempre está en la unidad base y cUnidadesCapturadas puede estar en una unidad con equivalencia con la base
+El campo CPrecio es el precio del producto.
+El campo CPrecioCapturado es Precio capturado por el usuario. Se diferencia de cPrecio porque cPrecio es el precio de la unidad base y cPrecioCapturado es el precio de la unidad capturada por el usuario.
+El campo CCostoCapturado es el Costo unitario del movimiento capturado por el usuario. Se usa para devoluciones sobre ventas
+El campo CcostoEspecifico Es el costo calculado del movimiento. Nota: En caso de que tenga un costeo promedio por almacén o último costo, el valor de este campo no necesariamente aparecerá en los reportes de Kárdex, ya que tomará el valor de la tabla Costos históricos.
+El campo CNeto es el Importe del neto para el movimiento.
+El campo CImpuesto1 normalmente es el IVA para el movimiento
+El campo CTotal es el Importe del total del movimiento
+El campo CMovtoOculto Indica si un movimiento fue capturado por el usuario (movimiento real) o fue generado por el sistema (movimiento oculto). 0 = Movimiento real, 1 = Movimiento oculto, 2 = Movimiento oculto. Importante: Un movimiento oculto se genera para el movimiento del almacén destino de un traspaso, los movimientos de los detalles de características y los movimientos de los componentes de un paquete.
+El campo CidMovtoOwner es el Identificador del documento dueño de un movimiento oculto. Importante: Cuando el movimiento es oculto este campo contiene el Identificador del movimiento que lo originó. Cuando el movimiento es real este campo debe estar vacío. Nota: Un movimiento oculto se genera para el movimiento del almacén destino de un traspaso, los movimientos de los detalles de características y los movimientos de los componentes de un paquete.
+El campo CidMovtoOrigen es Cuando el movimiento proviene de una conversión este campo contiene el Identificador del movimiento origen. Ejemplo: Si el movimiento es de una factura que surtió a un pedido, este campo contendrá el identificador del movimiento del pedido.
+
+admClientes: Tabla de Clientes y Proveedores. Esta tabla contiene los campos de los Clientes y Proveedores.
+El campo CidClienteProveedor es el Identificador único del cliente o proveedor
+El campo CcodigoClienteProveedor es el Código con el que se identifica el cliente o proveedor.
+El campo CRazonSocial es el nombre o Razón Social del cliente o proveedor
+El campo CRFC es el Registro Federal de Contribuyentes del cliente
+El campo CtipoCliente es el Tipo de cliente o proveedor: 1 = Cliente, 2 = Cliente/Proveedor, 3 = Proveedor
+El campo ClimiteCreditoCliente es el Límite de crédito del cliente.
+El campo CDiasCreditoCliente son los Días de crédito del cliente
+
+admAgentes. Esta tabla contiene los campos del catálogo Agentes
+El campo CidAgente contiene el identificador único del Agente
+El campo CCodigoAgente contiene el código del Agente
+El campo CNombreAgente contiene el nombre del Agente
+El campo CTipoAgente contiene el tipo de Agente. 1 Agente de Ventas, Agente de venta y Cobro, 3 Agente de Cobro
+
+admAlmacenes. Esta tabla contiene los campos del catálogo Almacenes.
+El Campo CidAlmacen contiene el identificador único del Almacén
+El campo CcodigoAlmacen contiene el código del Almacén
+El campo CnombreAlmacen contiene el nombre del almacén
+
+admConceptos. Esta tabla contiene los campos de los conceptos. Es en esta tabla donde tenemos todos los conceptos que pueden ser más de un mismo tipo y el tipo lo define el campo CidDocumentoDe que puede ser ventas, compras, cotizaciones, órdenes de compra, pedidos, remisiones, etc.
+El campo CidConceptoDocumento contiene el identificador único del Concepto
+El campo CcodigoConcepto contiene el código del concepto
+El campo CnombreConcepto contiene el nombre del Concepto
+El campo CiddocumentoDe contiene el Tipo de documento del concepto de documento. Referencia de la admDocumentosModelos.
+
+admProductos. Esta tabla contiene los campos para los productos, servicios y paquetes.
+El campo CidProducto contiene el identificador único de un producto, servicio o paquete
+El campo CCodigoProducto contiene el código del producto, servicio o paquete
+El campo CNombreProducto contiene el nombre del producto, servicio o paquete
+El campo CTipoProducto contiene el tipo del producto, 1 producto, 2 paquete y 3 servicio
+El campo CMetodoCosteo contiene el método de costeo del producto, el cual puede ser: 1 Costo Promedio Global, 2 Costo promedio por almacén, 3 Último Costo, 4 UEPS, PEPS, 6 Costo Específico y 7 Costo Estándar.
+El campo CidUnidadBase contiene el identificador de la unidad base de la unidad de medida y peso. Este campo se relaciona con el identificador de la tabla admUnidadesMedidaPeso.
+
+admUnidadesMedidaPeso: Esta tabla contiene los campos de las unidades de peso y medida de los servicios, productos y/o paquetes.
+El campo CidUnidad contiene el identificador único de una unidad de medida y peso.
+El campo CNombreUnidad contiene el nombre de la unidad de medida y peso
+
+admAsocCargosAbonos. Esta tabla contiene las relaciones entre los documentos de abonos y cargos que se saldan entre ellos, ya sea parcial o completamente. Los documentos de tipo abonos disminuyen el saldo de un documento de tipo cargo de un cliente o proveedor. Los documentos de cargos aumentan el saldo del cliente o proveedor del que se trate.
 
 **Búsquedas por Concepto de Negocio:** Los usuarios consultarán sobre "clientes", "facturas", "inventario", "impuestos", no sobre nombres técnicos de campos. El contexto debe asociar términos de negocio con estructuras técnicas.
 
