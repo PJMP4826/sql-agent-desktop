@@ -12,6 +12,7 @@ llama-index-embeddings-google-genai = "*"
 llama-index-vector-stores-chroma = "*"
 fastapi = "*"
 pyodbc = "*"
+pydantic-settings = "*"
 
 [dev-packages]
 
