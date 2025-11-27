@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from pydantic import Field, ConfigDict
+from pathlib import Path
 
 
 class Settings(BaseSettings):
@@ -35,6 +36,30 @@ class Settings(BaseSettings):
     sql_index_path: str = Field(
         default="./storage/sql_index", description="Path SQL index storage"
     )
+
+    @property
+    def database_url(self) -> str:
+        return (
+            f"mssql+pyodbc://{self.db_user}:{self.db_password}"
+            f"@{self.db_host}:{self.db_port}/{self.db_name}"
+            f"?driver=ODBC+Driver+17+for+SQL+Server"
+        )
+
+    @property
+    def docs_path_resolved(self) -> Path:
+        return Path(self.docs_path).resolve()
+
+    @property
+    def storage_path_resolved(self) -> Path:
+        return Path(self.storage_path).resolve()
+
+    @property
+    def chroma_path_resolved(self) -> Path:
+        return Path(self.chroma_path).resolve()
+
+    @property
+    def sql_index_path_resolved(self) -> Path:
+        return Path(self.sql_index_path).resolve()
 
 
 settings = Settings()
