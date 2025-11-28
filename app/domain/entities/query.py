@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Optional
-from sql_query import SQLQuery
+from app.domain.value_objects.sql_query import SQLQuery
 from datetime import datetime
 
 #representa la consulta del usuario
