@@ -7,7 +7,7 @@ class DomainException(BaseAppException):
         super().__init__(message, **kwargs)
 
 
-class AgentException(BaseAppException):
+class AgentException(DomainException):
     def __init__(self, message, agent_name: str = None, **kwargs):
         details = kwargs.get("details", {})
         if agent_name:
@@ -18,7 +18,7 @@ class AgentException(BaseAppException):
         super().__init__(message, **kwargs)
 
 
-class WorkflowException(BaseAppException):
+class WorkflowException(DomainException):
     def __init__(self, message, workflow_id: str = None, **kwargs):
         details = kwargs.get("details", {})
         if workflow_id:
