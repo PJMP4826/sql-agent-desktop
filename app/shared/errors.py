@@ -18,7 +18,7 @@ class BaseAppException(Exception):
             return f"[{self.error_code}] {self.message}"
         return self.message
 
-    def to_dict(self) -> Dict[Any]:
+    def to_dict(self) -> Dict[str, Any]:
         return {
             "error": self.message,
             "error_code": self.error_code,
