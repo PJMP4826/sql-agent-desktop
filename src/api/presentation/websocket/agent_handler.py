@@ -17,7 +17,7 @@ class AgentHandler:
         self.models = initialize_models()
         self._create_tools()
         self._create_agent()
-        self.max_iterations = 5
+        self.max_iterations = 5 
         self.current_iterations = 0
 
     def cargarRolBot(self):

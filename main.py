@@ -8,7 +8,6 @@ import asyncio
 from src.core.chat_query_engine import ChatQueryEngine
 from src.api.presentation.websocket.agent_handler import AgentHandler
 from src.cli.main import CLI
-from pathlib import Path
 
 
 warnings.filterwarnings("ignore", category=UserWarning)

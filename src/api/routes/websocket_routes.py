@@ -1,6 +1,6 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from src.api.presentation.websocket.connection_manager import ConnectionManager
-from src.api.presentation.websocket.chat_handler import handle_request, validate_user_input, handle_rag_response
+from src.api.presentation.websocket.chat_handler import handle_request, validate_user_input, handle_agent_response
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 manager = ConnectionManager()
@@ -19,7 +19,7 @@ async def websocket_endpoint(websocket: WebSocket):
             if not puede_procesar:
                 continue
 
-            await handle_rag_response(user_input, manager, websocket)
+            await handle_agent_response(user_input, manager, websocket)
 
     except WebSocketDisconnect as e:
         print("Cliente desconectado")
