@@ -10,7 +10,7 @@ class Agent(ABC):
         self.tools = tools or []
 
     @abstractmethod
-    async def chat(self):
+    async def chat(self) -> None:
         raise NotImplementedError
 
     def add_tool(self, tool: Tool):
