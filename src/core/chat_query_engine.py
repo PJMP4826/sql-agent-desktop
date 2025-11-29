@@ -8,11 +8,17 @@ from llama_index.core import SQLDatabase, StorageContext
 from llama_index.core.query_engine import NLSQLTableQueryEngine
 from llama_index.core.prompts import PromptTemplate
 
+from llama_index.core.output_parsers.pydantic import PydanticOutputParser
+from pydantic import BaseModel, Field
+
 # from llama_index.core.base.llms.types import ChatMessage, MessageRole
 # from llama_index.core.chat_engine import CondenseQuestionChatEngine
 
 load_dotenv()
 
+# class FinalResponse(BaseModel):
+#     answer: str = Field(description="The synthesized answer to the query.")
+#     sql_query: str = Field(description="The SQL query that was executed.")
 
 class ChatQueryEngine:
     def __init__(self, include_tables: List[str], business_context: str):
@@ -89,19 +95,37 @@ class ChatQueryEngine:
 
                 Tu objetivo es convertir la pregunta del usuario en una consulta SQL válida.
 
+                RELACIONES LÓGICAS DOCUMENTADAS:
+                {self.business_context}
+
+                Las tablas NO están relacionadas físicamente mediante Foreign Keys, pero tienen relaciones lógicas mediante campos de ID que coinciden. 
+                
+                RELACIONES LÓGICAS COMUNES:
+                - admDocumentos.CIDCLIENTEPROVEEDOR → admClientes.CIDCLIENTEPROVEEDOR
+                - admDocumentos.CIDCONCEPTODOCUMENTO → admConceptos.CIDCONCEPTODOCUMENTO
+                - admDocumentos.CIDAGENTE → admAgentes.CIDAGENTE
+                - admDocumentos.CIDMONEDA → admMonedas.CIDMONEDA
+                - admMovimientos.CIDDOCUMENTO → admDocumentos.CIDDOCUMENTO
+                - admMovimientos.CIDPRODUCTO → admProductos.CIDPRODUCTO
+                - admMovimientos.CIDALMACEN → admAlmacenes.CIDALMACEN
+                - admClientes.CIDAGENTEVENTA → admAgentes.CIDAGENTE
+                - admClientes.CIDAGENTECOBRO → admAgentes.CIDAGENTE
+
                 REGLAS ESTRICTAS:
                 1. NO inventes columnas, NO inventes tablas. Usa únicamente los nombres EXACTOS del esquema.
-                2. NO asumas relaciones entre tablas. SOLO puedes conectar tablas mediante columnas que coincidan exactamente en nombre y tipo lógico.
-                3. Si no hay forma confiable de relacionar varias tablas, limita la consulta a una sola tabla.
-                4. Usa subconsultas únicamente si es estrictamente necesario y SOLO si existe una columna coincidente entre tablas.
-                5. Prefiere consultas simples a consultas complejas. No optimices.
+                2. SÍ puedes relacionar tablas mediante campos de ID que coincidan en nombre (ej: CIDCLIENTEPROVEEDOR, CIDPRODUCTO, CIDDOCUMENTO, etc.)
+                3. Usa las relaciones lógicas documentadas en el ContextoNegocio. Si el contexto menciona una relación, úsala con confianza.
+                4. Si no hay forma confiable de relacionar varias tablas basándote en el contexto, limita la consulta a una sola tabla.
+                5. Usa JOINs cuando sea necesario y justificado por el contexto de negocio. Prefiere INNER JOIN a menos que necesites LEFT JOIN.
                 6. NO agregues texto explicativo. NO agregues comentarios. SOLO genera SQL.
                 7. NO uses funciones o sintaxis fuera de SQL Server.
-                8. Si la pregunta del usuario es ambigua, asume la interpretación mas simple basada en el esquema.
-                9. Siempre usa un TOP 20 para reducir la cantidad de registros que consultas
+                8. Si la pregunta del usuario es ambigua, asume la interpretación más simple basada en el esquema y contexto.
+                9. Siempre usa TOP 20 (o un límite apropiado) para reducir la cantidad de registros.
+                10. SIEMPRE excluye documentos cancelados: WHERE CESTADO != 'C' o similar según corresponda.
+                11. Para documentos, generalmente filtra solo los afectados: WHERE CAFECTADOINVENTARIO = 1 o según el tipo de documento.
 
                 FORMATO DE RESPUESTA:
-                Devuelve exclusivamente una consulta SQL valida. Nada mas.
+                Devuelve exclusivamente una consulta SQL válida. Nada mas.
 
                 Pregunta del usuario:
                 {{query_str}}
@@ -109,13 +133,33 @@ class ChatQueryEngine:
                 ContextoNegocio:
                 {self.business_context}
 
-                Usa el ContextoNegocio para entender qué significan 
-                los campos de las tablas y generar el SQL correcto.
+                Usa el ContextoNegocio para entender:
+                - Qué significan los campos de las tablas
+                - Cómo se relacionan las tablas entre sí
+                - Qué filtros son apropiados según el tipo de consulta
 
                 SQLQuery:  
                 """
+            
+            # response_synthesis_template = (
+            #   "Given an input question, synthesize a JSON response from the query results."
+            #     "Query: {query_str}"
+            #     "SQL: {sql_query}"
+            #     "SQL Response: {context_str}"
+            #     "Response: "
+            # )
 
+            # output_parser_json = PydanticOutputParser(output_cls=FinalResponse)
+
+
+            print("Contexto de negocio: ", self.business_context)
             prompt_sql = PromptTemplate(contpaq_context)
+
+            # prompt_synthesize_response = PromptTemplate(
+            #     response_synthesis_template,
+            #     output_parser=output_parser_json
+            # )
+
 
             mostrar_sql = True
             # natural language a SQL

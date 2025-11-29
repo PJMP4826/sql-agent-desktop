@@ -8,7 +8,7 @@ load_dotenv()
 
 API_KEY: str = os.getenv("GOOGLE_API_KEY") or ""
 EMBED_MODEL_NAME: str = os.getenv("EMBED_MODEL_NAME") or ""
-LLM_MODEL: str = os.getenv("LLM_MODEL") or ""
+LLM_MODEL: str = os.getenv("LLM_GEMINI_MODEL") or ""
 
 DB_USER: str = os.getenv("DB_USER") or ""
 DB_PASSWORD: str = os.getenv("DB_PASSWORD") or ""
@@ -32,7 +32,7 @@ def validate_env(env_requeridas: list[str]) -> None:
 
 
 def initialize_models() -> dict:
-    env_requeridas = ["GOOGLE_API_KEY", "EMBED_MODEL_NAME", "LLM_MODEL"]
+    env_requeridas = ["GOOGLE_API_KEY", "EMBED_MODEL_NAME", "LLM_GEMINI_MODEL"]
     validate_env(env_requeridas=env_requeridas)
 
     llm = GoogleGenAI(model=LLM_MODEL)

@@ -1,3 +1,48 @@
+Como Consultar Facturas
+Paso 1: Entender "Qué es una Factura" (La Lógica del Concepto)
+En CONTPAQi, una "Factura" no se define por una tabla, sino por un Modelo.
+La Regla de Oro: El CIDDOCUMENTODE (ID del Documento Modelo) para Facturas es el 4.
+El Problema: Tu empresa puede tener "Factura Contado", "Factura Crédito", "Factura Zona Norte". Todos son facturas (Modelo 4), pero son diferentes Conceptos.
+Lógica de filtrado:
+Primero, busca en admConceptos todos los registros donde CIDDOCUMENTODE = 4.
+Esos IDs resultantes (CIDCONCEPTODOCUMENTO) son los que usarás para filtrar la tabla principal de documentos.
+Paso 2: Mapa de Relaciones Lógicas (JOINs)
+Imagina la tabla admDocumentos como el centro de una estrella. Para tener la información completa de una factura, debes unirla con las puntas de la estrella de la siguiente manera:
+¿De qué tipo es?
+Tabla: admDocumentos (Alias: D)
+Unión: D.CIDCONCEPTODOCUMENTO = admConceptos.CIDCONCEPTODOCUMENTO
+Para qué sirve: Para obtener el nombre del concepto (ej. "Factura Electrónica") y filtrar solo las que sean modelo 4.
+¿A quién se la vendí?
+Tabla: admClientes (Alias: C)
+Unión: D.CIDCLIENTEPROVEEDOR = C.CIDCLIENTEPROVEEDOR
+Para qué sirve: Para obtener CRAZONSOCIAL y CRFC.
+¿Es válida fiscalmente (UUID)?
+Tabla: admFoliosDigitales (Alias: F)
+Unión: D.CIDDOCUMENTO = F.CIDDOCTO
+Para qué sirve: Para obtener el CUUID (Folio Fiscal) y el estado del timbrado.
+Nota: Usa un LEFT JOIN, porque puede haber facturas creadas que aún no han sido timbradas.
+¿Qué vendí? (El Detalle)
+Tabla: admMovimientos (Alias: M)
+Unión: D.CIDDOCUMENTO = M.CIDDOCUMENTO
+Para qué sirve: Para ver producto por producto.
+Nota: Esta relación es "Uno a Muchos" (1 Factura tiene N movimientos). Si haces esta unión, el folio de la factura se repetirá por cada producto listado.
+
+Paso 3: Puntos Críticos a Vigilar
+Al consultar esta base de datos, debes tener mucho cuidado con las siguientes "banderas" (campos booleanos):
+Facturas Canceladas (CCANCELADO):
+En admDocumentos, si CCANCELADO = 1, la factura ya no es válida administrativamente.
+Sin embargo, debes revisar admFoliosDigitales. A veces un documento se cancela en el sistema administrativo (admDocumentos), pero el UUID sigue vigente en el SAT si no se completó el proceso de cancelación digital.
+Facturas Afectadas (CAFECTADO):
+Si CAFECTADO = 0, el documento es solo un "borrador" o está en captura. No ha movido inventario ni saldo de cliente. Generalmente, querrás filtrar WHERE CAFECTADO = 1.
+Relación con Pagos (Complementos):
+Si buscas facturas PPD (Pago en Parcialidades o Diferido), necesitarás buscar sus pagos.
+La relación no es directa en una sola tabla. Debes buscar en admAsocCargosAbonos (mencionada brevemente al final de tu esquema) para ver qué documento de "Pago del Cliente" (Modelo 9) saldó a qué "Factura" (Modelo 4).
+Agentes:
+Si quieres saber quién vendió, el campo CIDAGENTE está en admDocumentos. Pero ojo: Si el agente cambió después de hacer la factura, el histórico se mantiene en el documento, no en el catálogo de clientes. Siempre confía en el CIDAGENTE de la tabla admDocumentos para comisiones históricas.
+Resumen para tu consulta:
+Para "sacar las facturas", tu camino lógico es:
+admConceptos (Filtra por ID Modelo 4) -> admDocumentos (Toma los datos) -> admClientes (Ponles nombre) -> admFoliosDigitales (Valida el timbre).
+
 # Schema de Base de Datos - CONTPAQi Comercial
 
 ## Catálogo: Agentes (admAgentes)
