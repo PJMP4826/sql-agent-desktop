@@ -4,7 +4,6 @@ from src.api.routes import api_routes
 from src.api.routes import web_routes
 from src.middlewares.cors import add_cors_middleware
 from fastapi import FastAPI
-import asyncio
 from src.core.chat_query_engine import ChatQueryEngine
 from src.api.presentation.websocket.agent_handler import AgentHandler
 from src.cli.main import CLI

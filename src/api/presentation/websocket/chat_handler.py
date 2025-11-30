@@ -47,4 +47,4 @@ async def handle_agent_response(user_input: str, manager: ConnectionManager, web
         print("Error en la query: ", e)
         await manager.send_message(f"AI: Error interno - {e}", websocket)
 
-    await manager.send_message(f"AI: {response}", websocket)
+    await manager.send_message(f"{response}", websocket)

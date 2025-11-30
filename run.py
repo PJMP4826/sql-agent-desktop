@@ -15,7 +15,7 @@ def open_browser():
     webbrowser.open(URL)
 
 if __name__ == "__main__":
-    threading.Timer(1.0, open_browser).start()
+    threading.Timer(5.0, open_browser).start()
     
     
     uvicorn.run(
