@@ -1,29 +1,63 @@
+from typing import Optional, Dict, Any
 from app.shared.errors import BaseAppException
 
 
 class DomainException(BaseAppException):
-    def __init__(self, message, **kwargs):
-        kwargs.setdefault("error_code", "DOMAIN_EXCEPTION")
-        super().__init__(message, **kwargs)
+    def __init__(
+        self,
+        message: str,
+        *,
+        error_code: str = "DOMAIN_EXCEPTION",
+        details: Optional[Dict[str, Any]] = None,
+        **kwargs: Any
+    ) -> None:
+        super().__init__(
+            message,
+            error_code=error_code,
+            details=details or {},
+            **kwargs
+        )
 
 
 class AgentException(DomainException):
-    def __init__(self, message, agent_name: str = None, **kwargs):
-        details = kwargs.get("details", {})
+    def __init__(
+        self,
+        message: str,
+        *,
+        agent_name: Optional[str] = None,
+        error_code: str = "AGENT_ERROR",
+        details: Optional[Dict[str, Any]] = None,
+        **kwargs: Any
+    ) -> None:
+        final_details: Dict[str, Any] = details.copy() if details else {}
         if agent_name:
-            details["agent_name"] = agent_name
+            final_details["agent_name"] = agent_name
 
-        kwargs["details"] = details
-        kwargs.setdefault("error_code", "AGENT_ERROR")
-        super().__init__(message, **kwargs)
+        super().__init__(
+            message,
+            error_code=error_code,
+            details=final_details,
+            **kwargs
+        )
 
 
 class WorkflowException(DomainException):
-    def __init__(self, message, workflow_id: str = None, **kwargs):
-        details = kwargs.get("details", {})
+    def __init__(
+        self,
+        message: str,
+        *,
+        workflow_id: Optional[str] = None,
+        error_code: str = "WORKFLOW_ERROR",
+        details: Optional[Dict[str, Any]] = None,
+        **kwargs: Any
+    ) -> None:
+        final_details: Dict[str, Any] = details.copy() if details else {}
         if workflow_id:
-            details["workflow_id"] = workflow_id
+            final_details["workflow_id"] = workflow_id
 
-        kwargs["details"] = details
-        kwargs.setdefault("error_code", "WORKFLOW_ERROR")
-        super().__init__(message, **kwargs)
+        super().__init__(
+            message,
+            error_code=error_code,
+            details=final_details,
+            **kwargs
+        )
