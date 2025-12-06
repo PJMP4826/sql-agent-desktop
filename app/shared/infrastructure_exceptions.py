@@ -1,38 +1,65 @@
+from typing import Optional, Dict, Any
 from app.shared.errors import BaseAppException
 
 
 class InfrastructureException(BaseAppException):
-    def __init__(self, message, **kwargs):
-        kwargs.setdefault("error_code", "INFRASTRUCTURE_EXCEPTION")
-        super().__init__(message, **kwargs)
+    def __init__(
+        self,
+        message: str,
+        *,
+        error_code: str = "INFRASTRUCTURE_EXCEPTION",
+        details: Optional[Dict[str, Any]] = None,
+        **kwargs: Any
+    ) -> None:
+        final_details = {**(details or {})}
 
-
-class DatabaseException(InfrastructureException):
-    def __init__(self, message: str, query: str = None, **kwargs):
-        details = kwargs.get("details", {})
-        if query:
-            details["query"] = query
-        kwargs["details"] = details
-        kwargs.setdefault("error_code", "DATABASE_ERROR")
-        super().__init__(message, **kwargs)
+        super().__init__(
+            message,
+            error_code=error_code,
+            details=final_details,
+            **kwargs
+        )
 
 
 class VectorStoreException(InfrastructureException):
-    def __init__(self, message: str, collection: str = None, **kwargs):
-        details = kwargs.get("details", {})
+    def __init__(
+        self,
+        message: str,
+        *,
+        collection: Optional[str] = None,
+        error_code: str = "VECTOR_STORE_ERROR",
+        details: Optional[Dict[str, Any]] = None,
+        **kwargs: Any
+    ) -> None:
+        final_details = {**(details or {})}
         if collection:
-            details["collection"] = collection
-        kwargs["details"] = details
-        kwargs.setdefault("error_code", "VECTOR_STORE_ERROR")
-        super().__init__(message, **kwargs)
+            final_details["collection"] = collection
+
+        super().__init__(
+            message,
+            error_code=error_code,
+            details=final_details,
+            **kwargs
+        )
 
 
 class LLMException(InfrastructureException):
-    def __init__(self, message, model: str = None, **kwargs):
-        details = kwargs.get("details", {})
+    def __init__(
+        self,
+        message: str,
+        *,
+        model: Optional[str] = None,
+        error_code: str = "LLM_ERROR",
+        details: Optional[Dict[str, Any]] = None,
+        **kwargs: Any
+    ) -> None:
+        final_details = {**(details or {})}
         if model:
-            details["model"] = model
+            final_details["model"] = model
 
-        kwargs["details"] = details
-        kwargs.setdefault("error_code", "LLM_ERROR")
-        super().__init__(message, **kwargs)
+        super().__init__(
+            message,
+            error_code=error_code,
+            details=final_details,
+            **kwargs
+        )
