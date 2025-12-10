@@ -1,9 +1,16 @@
 from typing import List
 from abc import ABC, abstractmethod
 from app.domain.entities.document import Document
+from llama_index.core.vector_stores.types import BasePydanticVectorStore
 
 
 class VectorStorePort(ABC):
+
+    @property
+    @abstractmethod
+    def get_vector_store(self) -> BasePydanticVectorStore:
+        pass
+
     @abstractmethod
     def add_documents(self, documents: List[Document]) -> List[str]:
         pass
@@ -14,7 +21,7 @@ class VectorStorePort(ABC):
         pass
 
     @abstractmethod
-    def delete_documents(self, ids: List[str]):
+    def delete_documents(self, ids: List[str]) -> bool:
         pass
 
     @abstractmethod
