@@ -4,6 +4,7 @@ from typing import List
 from app.application.ports.vector_store_port import VectorStorePort
 from app.domain.entities.document import Document
 from llama_index.vector_stores.chroma import ChromaVectorStore # type: ignore
+from app.shared.infrastructure_exceptions import VectorStoreException
 
 logger = logging.getLogger(__name__)
 
@@ -15,17 +16,31 @@ class ChromaClient(VectorStorePort):
     ) -> None:
         self.persist_directory = persist_directory
         self.collection_name = collection_name
-        self._chroma_client = chromadb.PersistentClient(path=self.persist_directory)
-        self._collection = self._chroma_client.get_or_create_collection(
-            self.collection_name
-        )
+        try:
+            self._chroma_client = chromadb.PersistentClient(path=self.persist_directory)
+            self._collection = self._chroma_client.get_or_create_collection(
+                self.collection_name
+            )
+        except Exception as e:
+            raise VectorStoreException(
+                "Error al inicializar Chroma client o collection",
+                collection=self.collection_name,
+                details={"path": self.persist_directory, "error": str(e)}
+            ) from e
 
     @property
     def get_vector_store(self):
         """
         Obtener Vector Store de LlamaIndex
         """
-        return ChromaVectorStore(chroma_collection=self._collection)
+        try:
+            return ChromaVectorStore(chroma_collection=self._collection)
+        except Exception as e:
+            raise VectorStoreException(
+                "Error al build VectorStoreException",
+                collection=self.collection_name,
+                details={"error": str(e)}
+            ) from e
 
     def add_documents(self, documents: List[Document]) -> List[str]:
         try:
@@ -38,8 +53,12 @@ class ChromaClient(VectorStorePort):
 
             return ids
         except Exception as e:
-            logger.error(f"Error adding documents: {e}")
-            raise
+            logger.error(f"Error agregando documents: {e}")
+            raise VectorStoreException(
+                "Error agregando documento",
+                collection=self.collection_name,
+                details={"error": str(e)}
+            ) from e
 
     def query(self, query_text: str, top_k: int = 5) -> List[Document]:
         try:
@@ -53,8 +72,10 @@ class ChromaClient(VectorStorePort):
                 ))
             return documents
         except Exception as e:
-            logger.error(f"Error querying documents: {e}")
-            raise
+            logger.error(f"Error consultando documents: {e}")
+            raise VectorStoreException(
+                "Error al consultar"
+            ) from e
 
     def delete_collection(self) -> bool:
         try:
@@ -64,8 +85,12 @@ class ChromaClient(VectorStorePort):
             )
             return True
         except Exception as e:
-            logger.error(f"Error deleting collection: {e}")
-            return False
+            logger.error(f"Error eliminando collection: {e}")
+            raise VectorStoreException(
+                "Error eliminando collection",
+                collection=self.collection_name,
+                details={"error": str(e)},
+            ) from e
 
     def delete_documents(self, ids: List[str]) -> bool:
         try:
@@ -74,7 +99,19 @@ class ChromaClient(VectorStorePort):
             return True
         except Exception as e:
             logging.error(f"Error eliminando documentos {e}")
-            return False
+            raise VectorStoreException(
+                "Error eliminando documentos",
+                collection=self.collection_name,
+                details={"ids": ids, "error": str(e)},
+            ) from e
         
     def get_collection_count(self) -> int:
-        return self._collection.count()
+        try:
+            return self._collection.count()
+        except Exception as e:
+            logger.exception("Error obteniendo collection count")
+            raise VectorStoreException(
+                "Error obteniendo collection count",
+                collection=self.collection_name,
+                details={"error": str(e)},
+            ) from e
