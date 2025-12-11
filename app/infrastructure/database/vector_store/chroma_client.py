@@ -41,6 +41,21 @@ class ChromaClient(VectorStorePort):
             logger.error(f"Error adding documents: {e}")
             raise
 
+    def query(self, query_text: str, top_k: int = 5) -> List[Document]:
+        try:
+            results = self._collection.query(query_texts=[query_text], n_results=top_k)
+            documents: List[Document] = []
+            for i, doc_id in enumerate(results['ids'][0]):
+                documents.append(Document(
+                    id=int(doc_id),
+                    content=results['documents'][0][i] if results['documents'] and len(results['documents']) > 0 else "",
+                    metadata=dict(results['metadatas'][0][i]) if results['metadatas'] else {}
+                ))
+            return documents
+        except Exception as e:
+            logger.error(f"Error querying documents: {e}")
+            raise
+
     def delete_collection(self) -> bool:
         try:
             self._chroma_client.delete_collection(self.collection_name)
