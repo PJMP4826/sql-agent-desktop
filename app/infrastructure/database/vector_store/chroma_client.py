@@ -5,6 +5,7 @@ from app.application.ports.vector_store_port import VectorStorePort
 from app.domain.entities.document import Document
 from llama_index.vector_stores.chroma import ChromaVectorStore # type: ignore
 from app.shared.infrastructure_exceptions import VectorStoreException
+from llama_index.core.vector_stores.types import BasePydanticVectorStore
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class ChromaClient(VectorStorePort):
             ) from e
 
     @property
-    def get_vector_store(self):
+    def get_vector_store(self) -> BasePydanticVectorStore:
         """
         Obtener Vector Store de LlamaIndex
         """
