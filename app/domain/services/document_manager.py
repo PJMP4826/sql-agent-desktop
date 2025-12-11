@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from typing import List, Optional
 from llama_index.core import (
@@ -14,7 +13,7 @@ from typing import Any
 class DocumentManager:
 
     ALLOWED_EXTENSIONS = [".pdf", ".txt", ".md", ".docx", ".doc", ".csv"]
-    
+
     def __init__(self, vector_store: VectorStorePort) -> None:
         self.vector_store = vector_store
         self.file_extensions = [".pdf", ".txt", ".md", ".docx", ".doc"]
@@ -24,30 +23,28 @@ class DocumentManager:
 
         if not file_path_obj.exists():
             raise DomainException(
-                "Archivo no encontrado",
-                details={"file_path": file_path}
+                "Archivo no encontrado", details={"file_path": file_path}
             )
 
-        #verificar que sea archivo
+        # verificar que sea archivo
         if not file_path_obj.is_file():
             raise DomainException(
-                "Path no es un archivo",
-                details={"file_path": file_path}
+                "Path no es un archivo", details={"file_path": file_path}
             )
 
         extension: str = file_path_obj.suffix.lower()
 
-        #verificar extension
+        # verificar extension
         if extension not in self.ALLOWED_EXTENSIONS:
             raise DomainException(
                 "Tipo de archivo no soportado",
                 details={
                     "file_path": file_path,
                     "extension": extension,
-                    "allowed_extensions": self.ALLOWED_EXTENSIONS
-                }
+                    "allowed_extensions": self.ALLOWED_EXTENSIONS,
+                },
             )
-        
+
         return {
             "valid": True,
             "file_path": str(file_path_obj),
@@ -55,10 +52,12 @@ class DocumentManager:
             "extension": extension,
         }
 
-    def validate_files(self, files_paths: List[str]) -> dict[str, List[dict[str, str]] | int]:
+    def validate_files(
+        self, files_paths: List[str]
+    ) -> dict[str, List[dict[str, str]] | int]:
         valid_files: List[dict[str, str]] = []
         invalid_files: List[dict[str, str]] = []
-        
+
         for file_path in files_paths:
             try:
 
@@ -66,87 +65,67 @@ class DocumentManager:
 
                 valid_files.append(validation)
             except DomainException as e:
-                invalid_files.append({
-                    "file_path": file_path,
-                    "error": str(e)
-                })
-        
+                invalid_files.append({"file_path": file_path, "error": str(e)})
+
         return {
             "valid_files": valid_files,
             "invalid_files": invalid_files,
             "valid_files_count": len(valid_files),
-            "invalid_files_count": len(invalid_files)
+            "invalid_files_count": len(invalid_files),
         }
-            
-    def load_documents_from_directory(
-        self, path: str, file_extensions: Optional[List[str]] = None
-    ) -> List[LlamaDocument]:
 
-        if file_extensions is None:
-            file_extensions = self.file_extensions
-
+    def load_document(self, file_path: str) -> List[LlamaDocument]:
         try:
 
-            is_directory: bool = os.path.isdir(path)
-            is_file: bool = os.path.isfile(path)
+            self.validate_file(file_path)
 
-            if not is_directory and not is_file:
-                raise ValueError(
-                    "La rura proporcionada no es un directorio ni archivo valido"
-                )
-            
-            reader_params = {"required_exts": file_extensions}
-            if is_directory:
-                reader_params = ["input_dir"] = path
-
-            if is_file:
-                reader_params = ["input_files"] = [path]
-
-
-            reader = SimpleDirectoryReader(
-                **reader_params
-            )
+            reader = SimpleDirectoryReader(input_files=[file_path])
 
             documents: List[Document] = reader.load_data()
+
+            if not documents:
+                raise DomainException(
+                    "No hay contenido para extraer del archivo",
+                    details={"file_path": file_path},
+                )
 
             return documents
         except Exception as e:
             raise DomainException(
                 "Error al cargar los archivos",
-                details={"path": path, "error": str(e)},
+                details={"path": file_path, "error": str(e)},
             )
-        
-        
-    def add_documents(self, file_paths: List[str]) -> dict:
+
+    def load_documents_from_directory(self, directory_path: str, recursive: Optional[bool] = False) -> List[LlamaDocument]:
         try:
-            valid_files: List[str] = []
-            invalid_files: List[str] = []
+            path = Path(directory_path)
 
-            for file_path in file_paths:
-                file_path_obj = Path(file_path)
-
-                if not file_path_obj.exists():
-                    invalid_files.append(file_path)
-
-                valid_files.append(file_path)
-
-            if not valid_files:
+            if not path.exists():
                 raise DomainException(
-                    "No hay archivos validos para indexar",
-                    details={"invalid_files": invalid_files}
+                    "No existe el directorio",
+                    details={"directory_path": directory_path},
                 )
-            
-            documents = SimpleDirectoryReader(
-                input_files=valid_files
-            ).load_data()
 
-            #for doc in documents:
+            if not path.is_dir():
+                raise DomainException(
+                    "No es un directorio valido",
+                    details={"directory_path": directory_path},
+                )
 
+            reader = SimpleDirectoryReader(input_dir=path, required_exts=self.ALLOWED_EXTENSIONS, recursive=recursive or False)
 
+            documents: List[Document] = reader.load_data()
+
+            for doc in documents:
+                if not doc:
+                    raise DomainException(
+                        "No hay contenido para extraer del archivo",
+                        details={"file_path": path},
+                    )
+
+            return documents
         except Exception as e:
             raise DomainException(
-                "Error al indexar archivos",
-                details={"file_count": len(file_paths), "error": str(e)},
+                "Error cargando documentos del directorio",
+                details={"directory_path": directory_path, "error": str(e)},
             )
-
-    
