@@ -54,8 +54,30 @@ class DocumentManager:
             "file_name": file_path_obj.name,
             "extension": extension,
         }
+
+    def validate_files(self, files_paths: List[str]) -> dict[str, List[dict[str, str]] | int]:
+        valid_files: List[dict[str, str]] = []
+        invalid_files: List[dict[str, str]] = []
         
-    
+        for file_path in files_paths:
+            try:
+
+                validation = self.validate_file(file_path)
+
+                valid_files.append(validation)
+            except DomainException as e:
+                invalid_files.append({
+                    "file_path": file_path,
+                    "error": str(e)
+                })
+        
+        return {
+            "valid_files": valid_files,
+            "invalid_files": invalid_files,
+            "valid_files_count": len(valid_files),
+            "invalid_files_count": len(invalid_files)
+        }
+            
     def load_documents_from_directory(
         self, path: str, file_extensions: Optional[List[str]] = None
     ) -> List[LlamaDocument]:
@@ -94,8 +116,6 @@ class DocumentManager:
                 details={"path": path, "error": str(e)},
             )
         
-
-    
         
     def add_documents(self, file_paths: List[str]) -> dict:
         try:
