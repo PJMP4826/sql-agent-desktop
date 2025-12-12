@@ -62,23 +62,6 @@ class RagService:
                 "Error creando vector index", details={"error": str(e)}
             )
 
-    def _create_index_from_documents(self) -> VectorStoreIndex:
-        try:
-            storage_context = StorageContext.from_defaults(
-                vector_store=self.vector_store.get_vector_store
-            )
-
-            index = VectorStoreIndex.from_documents(
-                self.document_manager, storage_context=storage_context
-            )
-
-            return index
-
-        except Exception as e:
-            raise DomainException(
-                "Error al crear index de Vectore Store", details={"error": str(e)}
-            )
-
     @property
     def index(self):
         if self._index is None:
@@ -162,11 +145,11 @@ class RagService:
 
             documents = self.document_manager.load_document(file_path)
 
-            inserted_count = 0
+            inserted_count: int = 0
 
             for doc in documents:
                 self.index.insert(document=doc)
-                insert_count += 1
+                inserted_count += 1
 
             self.refresh_engines()
 
@@ -202,6 +185,7 @@ class RagService:
                 "Error re-indexing documentos", details={"error": str(e)}
             )
 
+    
     def chat(self, user_input: str) -> str:
         return str(self.chat_engine.chat(user_input))
 
