@@ -28,7 +28,7 @@ class RagService:
         self.document_manager = DocumentManager()
 
         self._index: Optional[BaseIndex[Any]] = None
-        self._chat_query: Optional[BaseChatEngine] = None
+        self._chat_engine: Optional[BaseChatEngine] = None
         self._query_engine: Optional[BaseQueryEngine] = None
 
         self.llm_client = llm_client
@@ -85,7 +85,38 @@ class RagService:
 
     @property
     def index(self):
-        return self._create_index_from_documents()
+        if self._index is None:
+            self._index = self._create_index()
+        return self._index
+    
+
+    @property
+    def chat_engine(self) -> BaseChatEngine:
+        if self._chat_engine is None:
+            self._chat_engine = self.index.as_chat_engine(
+                chat_mode=ChatMode.CONDENSE_PLUS_CONTEXT,
+                system_prompt=self.system_prompt_path,
+                verbose=False
+            )
+        return self._chat_engine
+    
+    @property
+    def query_engine(self) -> BaseQueryEngine:
+        """Lazy loading del query engine con cache"""
+        if self._query_engine is None:
+            self._query_engine = self.index.as_query_engine()
+        return self._query_engine
+    
+    def refresh_engines(self):
+        """Refrescar engines despues de cambios en el indice"""
+        self._chat_engine = None
+        self._query_engine = None
+
+    # refrescar todo (indice y engines)
+    def refresh_all(self):
+        self._index = None
+        self._chat_engine = None
+        self._query_engine = None
 
     def add_document(self, document: Document):
         try:
@@ -95,17 +126,6 @@ class RagService:
                 "Error al agregar documento", details={"error": str(e)}
             )
 
-    @property
-    def chat_engine(self) -> BaseChatEngine:
-        return self.index.as_chat_engine(
-            chat_mode=ChatMode.CONDENSE_PLUS_CONTEXT,
-            system_prompt=(self.system_prompt_path),
-            verbose=False,
-        )
-
-    @property
-    def query_engine(self):
-        return self.index.as_query_engine()
 
     def chat(self, user_input: str) -> str:
         return str(self.chat_engine.chat(user_input))
