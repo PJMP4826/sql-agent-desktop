@@ -184,4 +184,27 @@ class RagService:
             raise DomainException(
                 "Error re-indexing documentos", details={"error": str(e)}
             )
+        
+    def query(self, user_input: str) -> str:
+        try:
+            response = self.query_engine.query(user_input)
+
+            return str(response)
+        except Exception as e:
+            raise DomainException(
+                "Error en query, usando query_engine",
+                details={"question": user_input, "error": str(e)},
+            )
+
+    # consultar pero usando el contexto de la conversation
+    def chat(self, user_input: str) -> str:
+        try:
+            response = self.chat_engine.chat(user_input)
+
+            return str(response)
+        except Exception as e:
+            raise DomainException(
+                "Error en chat, usando chat_engine",
+                details={"question": user_input, "error": str(e)},
+            )
 
