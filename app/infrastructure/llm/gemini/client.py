@@ -9,7 +9,7 @@ from llama_index.embeddings.google_genai import GoogleGenAIEmbedding # type: ign
 class GeminiAdapter(LLMPort):
 
     def __init__(
-        self, llm_model_name: str, api_key: str, embed_model: str = "text-embedding-004"
+        self, llm_model_name: str, api_key: str, embed_model: str
     ) -> None:
         self.llm_model_name: str = llm_model_name
         self.llm: LLM = GoogleGenAI(model=llm_model_name, api_key=api_key)
