@@ -10,20 +10,61 @@ from llama_index.core.base.base_query_engine import BaseQueryEngine
 from llama_index.core.schema import Document
 from llama_index.core.chat_engine.types import ChatMode, BaseChatEngine
 
+from app.application.ports.llm_port import LLMPort
+
 
 class RagService:
-    def __init__(self, vector_store: VectorStorePort) -> None:
-        self.system_prompt_path: Optional[str] = None
+    def __init__(
+        self,
+        vector_store: VectorStorePort,
+        llm_client: LLMPort,
+        system_prompt_path: Optional[str],
+        auto_index_on_empty: bool = False,
+    ) -> None:
+        self.system_prompt_path: Optional[str] = system_prompt_path
         self.vector_store = vector_store
-        self.document_manager = DocumentManager(self.vector_store)
+        self.settings = Settings()  # type: ignore
+
+        self.document_manager = DocumentManager()
 
         self._index: Optional[BaseIndex[Any]] = None
         self._chat_query: Optional[BaseChatEngine] = None
         self._query_engine: Optional[BaseQueryEngine] = None
 
+        self.llm_client = llm_client
 
-    #def _create_index(self) -> VectorStoreIndex:
+    def _is_vectore_store_empty(self) -> bool:
+        try:
+            return self.vector_store.get_collection_count() == 0
+        except Exception:
+            return False
 
+
+    def _create_storage_context(self) -> StorageContext:
+        self.storage_context = StorageContext.from_defaults(
+            vector_store=self.vector_store.get_vector_store
+        )
+    
+
+    def _create_index(self):
+        try:
+            if not self._is_vectore_store_empty():
+                index: VectorStoreIndex = VectorStoreIndex(
+                    nodes=[],
+                    storage_context=self.storage_context
+                )
+            
+            index: VectorStoreIndex = VectorStoreIndex.from_vector_store(
+                vector_store=self.vector_store.get_vector_store,
+                embed_model=self.llm_client.get_embed_model()
+            )
+
+            return index
+        except Exception as e:
+            raise DomainException(
+                "Error creando vector index",
+                details={"error": str(e)}
+            )
 
     def _create_index_from_documents(self) -> VectorStoreIndex:
         try:

@@ -4,7 +4,6 @@ from llama_index.core import (
     SimpleDirectoryReader,
     Document as LlamaDocument,
 )
-from app.application.ports.vector_store_port import VectorStorePort
 from app.shared.domain_exceptions import DomainException
 from llama_index.core.schema import Document
 from typing import Any
@@ -14,8 +13,7 @@ class DocumentManager:
 
     ALLOWED_EXTENSIONS = [".pdf", ".txt", ".md", ".docx", ".doc", ".csv"]
 
-    def __init__(self, vector_store: VectorStorePort) -> None:
-        self.vector_store = vector_store
+    def __init__(self):
         self.file_extensions = [".pdf", ".txt", ".md", ".docx", ".doc"]
 
     def validate_file(self, file_path: str) -> dict[str, Any]:
