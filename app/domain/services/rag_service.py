@@ -39,7 +39,7 @@ class RagService:
         except Exception:
             return False
 
-    def _create_storage_context(self) -> StorageContext:
+    def _create_storage_context(self) -> None:
         self.storage_context = StorageContext.from_defaults(
             vector_store=self.vector_store.get_vector_store
         )
@@ -51,7 +51,7 @@ class RagService:
                     nodes=[], storage_context=self.storage_context
                 )
 
-            index: VectorStoreIndex = VectorStoreIndex.from_vector_store(
+            index: VectorStoreIndex = VectorStoreIndex.from_vector_store(  # type: ignore
                 vector_store=self.vector_store.get_vector_store,
                 embed_model=self.llm_client.get_embed_model(),
             )
@@ -71,7 +71,7 @@ class RagService:
     @property
     def chat_engine(self) -> BaseChatEngine:
         if self._chat_engine is None:
-            self._chat_engine = self.index.as_chat_engine(
+            self._chat_engine = self.index.as_chat_engine(  # type: ignore
                 chat_mode=ChatMode.CONDENSE_PLUS_CONTEXT,
                 system_prompt=self.system_prompt_path,
                 verbose=False,
@@ -82,7 +82,7 @@ class RagService:
     def query_engine(self) -> BaseQueryEngine:
         """Lazy loading del query engine con cache"""
         if self._query_engine is None:
-            self._query_engine = self.index.as_query_engine()
+            self._query_engine = self.index.as_query_engine()  # type: ignore
         return self._query_engine
 
     def refresh_engines(self):
@@ -185,8 +185,3 @@ class RagService:
                 "Error re-indexing documentos", details={"error": str(e)}
             )
 
-    
-    def chat(self, user_input: str) -> str:
-        return str(self.chat_engine.chat(user_input))
-
-    # recordatorio: implementar def chat() en el agent
