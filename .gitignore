@@ -1,5 +1,7 @@
 chroma_db/
 sql_bot/
+data/
+books/
 contexto_empresa.pdf
 rol_bot.txt
 .env
