@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "41e7cef9ec02c8aae5dd0a9eaca5a448f79a748b9f5da9513e0d47d10c4b3283"
+            "sha256": "1077134a76cbc9fc1057c6842b8e45e4a3294480ceedde4b288557f94dceacb7"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -160,11 +160,11 @@
         },
         "aiosqlite": {
             "hashes": [
-                "sha256:131bb8056daa3bc875608c631c678cda73922a2d4ba8aec373b19f18c17e7aa3",
-                "sha256:2549cf4057f95f53dcba16f2b64e8e2791d7e1adedb13197dd8ed77bb226d7d0"
+                "sha256:7e9e52d72b319fcdeac727668975056c49720c995176dc57370935e5ba162bb9",
+                "sha256:96007fac2ce70eda3ca1bba7a3008c435258a592b8fbf2ee3eeaa36d33971a09"
             ],
             "markers": "python_version >= '3.9'",
-            "version": "==0.21.0"
+            "version": "==0.22.0"
         },
         "annotated-types": {
             "hashes": [
@@ -1252,6 +1252,15 @@
             "index": "pypi",
             "markers": "python_version >= '3.9' and python_version < '4.0'",
             "version": "==0.5.0"
+        },
+        "llama-index-llms-lmstudio": {
+            "hashes": [
+                "sha256:4d6d5c2e6102291f1ca2613c2f9309dfb4938b0cdc72b0acfbc9b3251bbbf8f7",
+                "sha256:d2361c0b8f5261bdcc3d3423a794e489fa3125a1039305835616c99d1ec20c33"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.9' and python_version < '4.0'",
+            "version": "==0.4.1"
         },
         "llama-index-llms-openai": {
             "hashes": [
