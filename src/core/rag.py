@@ -16,7 +16,7 @@ class RAG:
         if docs_path is None:
             current_file = Path(__file__)
             project_root = current_file.parent.parent.parent
-            self.docs_path = str(project_root / "docs")
+            self.docs_path = str(project_root / "books")
         else:
             self.docs_path = docs_path
 
