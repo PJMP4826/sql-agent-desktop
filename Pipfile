@@ -13,7 +13,6 @@ fastapi = "*"
 pyodbc = "*"
 pydantic-settings = "*"
 llama-index-vector-stores-chroma = "*"
-llama-index-llms-lmstudio = "*"
 
 [dev-packages]
 
