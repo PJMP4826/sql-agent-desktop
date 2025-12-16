@@ -1,4 +1,4 @@
-RELATIONSHIP_TABLES: dict[str, dict[str, str]] = {
+TABLE_RELATIONSHIPS: dict[str, dict[str, str]] = {
     "admDocumentos": {
         # Relaciones principales
         "admClientes": "admDocumentos.CIDCLIENTEPROVEEDOR = admClientes.CIDCLIENTEPROVEEDOR",
