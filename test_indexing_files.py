@@ -8,33 +8,30 @@ logging.basicConfig(
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
-
-
-def main():
-    settings = Settings() # type: ignore
+settings = Settings() # type: ignore
     
-    logger.info(f"Modelo LLM: {settings.llm_gemini_model}")
-    logger.info(f"Modelo Embed: {settings.embed_model_name}")
-    
-    vector_store = ChromaClient(
-        collection_name='test_collection',
-        persist_directory='./data/vector_store/chroma'
+logger.info(f"Modelo LLM: {settings.llm_gemini_model}")
+logger.info(f"Modelo Embed: {settings.embed_model_name}")
+
+vector_store = ChromaClient(
+    collection_name='test_collection',
+    persist_directory='./data/vector_store/chroma'
+)
+
+logger.info(f"Vector store inicializado. Conteo: {vector_store.get_collection_count()}")
+
+try:
+    gemini_client = GeminiAdapter(
+        llm_model_name=settings.llm_gemini_model,
+        api_key=settings.google_api_key,
+        embed_model=settings.embed_model_name
     )
-    
-    logger.info(f"Vector store inicializado. Conteo: {vector_store.get_collection_count()}")
-    
-    try:
-        gemini_client = GeminiAdapter(
-            llm_model_name=settings.llm_gemini_model,
-            api_key=settings.google_api_key,
-            embed_model=settings.embed_model_name
-        )
-        logger.info("Cliente Gemini inicializado exitosamente")
-    except Exception as e:
-        logger.error(f"Fallo al inicializar Gemini: {e}")
-        raise
-    
-    system_prompt = """
+    logger.info("Cliente Gemini inicializado exitosamente")
+except Exception as e:
+    logger.error(f"Fallo al inicializar Gemini: {e}")
+    raise
+
+system_prompt = """
     Eres un clasificador experto cuya unica funcion es 
     identificar que tablas de una base de datos son relevantes
     para responder la peticion del usuario.
@@ -53,15 +50,16 @@ def main():
     - Si ninguna tabla aplica, devuelve []
     - No expliques tu seleccion
     """
-    
-    rag = RagService(
+
+
+rag = RagService(
         vector_store=vector_store,
         llm_client=gemini_client,
         system_prompt=system_prompt,  
         auto_index_on_empty=False  
     )
-    
-    
+
+def main():
     try:
         current_count = vector_store.get_collection_count()
         logger.info(f"Conteo de documentos actual: {current_count}")
@@ -69,7 +67,7 @@ def main():
         if current_count == 0:
             logger.info("Vector store vacio, indexando documentos...")
             
-            result = rag.index_directory("./docs")
+            result = rag.index_directory("./books")
             
             logger.info(f"Resultado de indexacion: {result}")
             
@@ -92,5 +90,25 @@ def main():
         raise
 
 
+def test_index_file():
+    try:
+        current_count = vector_store.get_collection_count()
+        logger.info(f"Conteo de documentos actual: {current_count}")
+
+        file_path = "./COM_BDD_CONTEXT_merged.pdf"
+        result = rag.add_document(file_path=file_path)
+
+        logger.info(f"Resultado de indexacion: {result}")
+        post_count = vector_store.get_collection_count()
+        if post_count == 0:
+            logger.error("Indexacion completada pero el conteo sigue siendo 0!")
+            logger.error(f"Verifique si el directorio {file_path} existe y tiene informacion")
+            return
+    
+    except Exception as e:
+        logger.exception(f"Error durante la ejecucion: {e}")
+        raise
+
+
 if __name__ == "__main__":
-    main()
+    test_index_file()
