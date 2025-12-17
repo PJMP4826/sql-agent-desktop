@@ -26,6 +26,7 @@ class RagService:
         auto_index_on_empty: bool = False,
     ) -> None:
         self.system_prompt: Optional[str] = system_prompt
+        print("System Prompt: ", self.system_prompt)
         self.vector_store = vector_store
         self.settings = Settings()  # type: ignore
 
@@ -90,11 +91,11 @@ class RagService:
     def chat_engine(self) -> BaseChatEngine:
         if self._chat_engine is None:
 
-            system_prompt = self.system_prompt or "Eres un asistente contable"
+            system_prompt = self.system_prompt
 
             self._chat_engine = self.index.as_chat_engine(  # type: ignore
                 llm=self.llm_client.get_llm_model(),
-                chat_mode=ChatMode.CONDENSE_PLUS_CONTEXT,
+                chat_mode=ChatMode.BEST,
                 system_prompt=system_prompt,
                 verbose=False,
             )

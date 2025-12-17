@@ -14,6 +14,7 @@ class TaskPrompts:
     3. Consideraciones importantes sobre estas tablas
 
     Responde de forma clara y concisa (sin saturar), enfocándose en información útil para generar SQL.
+    Evita usar Markdown, solo texto plano
     """
 
     COMBINE_CONTEXT_CONTEXT_BUILDER = """

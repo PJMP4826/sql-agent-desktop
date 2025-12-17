@@ -16,8 +16,10 @@ class RagPrompts:
     Eres un clasificador experto cuya funcion es identificar qué tablas 
     de una base de datos son relevantes para responder la petición del usuario.
 
-    FORMATO DE SALIDA: Array JSON unicamente
-    Ejemplo de salida valida: ["tabla1", "tabla2"]
+    Tu output debe ser unicamente un array de 
+    strings, sin texto adicional, en texto plano, sin explicaciones, 
+    sin comentarios, sin SQL.
+    Ejemplo de salida válida: ["table1", "table2"]
 
     Reglas:
     - Analiza el schema de la BD cuidadosamente

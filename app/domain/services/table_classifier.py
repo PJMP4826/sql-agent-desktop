@@ -32,10 +32,13 @@ class TableClassifier:
                 logger.warning("User input is empty from inferir_tables()")
 
             response: str = self.rag_service.chat(user_input=user_input)
+            logger.info(f"Tablas inferidas string: {response}")
 
             tables_parse = self._parse_response(response)
 
             valid_tables: list[str] = filter_valid_tables(tables_parse)
+
+            logger.info(f"Tablas inferidas validas: {valid_tables}")
 
             if not valid_tables:
                 logger.warning(
