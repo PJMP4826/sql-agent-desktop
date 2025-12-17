@@ -2,6 +2,7 @@ import logging
 from sqlalchemy import create_engine, Engine, text
 from app.shared.infrastructure_exceptions import InfrastructureException
 from app.config.settings import Settings
+from app.shared.constants.errors_code import format_db_error
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -64,7 +65,8 @@ class ConnetionManager:
                 }
         except Exception as e:
             #logger.error(f"Connection test failed: {e}")
-            return {"status": "error", "message": str(e), "version": None}
+            full_error = str(e)
+            return {"status": "error", "message": format_db_error(full_error), "version": None}
 
     def close(self):
         if self._engine:
