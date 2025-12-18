@@ -47,4 +47,7 @@ class SQLPrompts:
 
     @classmethod
     def format_with_context(cls, business_context: str) -> str:
-        return cls.TEXT_TO_SQL_WITH_CONTEXT.format(business_context=business_context)
+        return cls.TEXT_TO_SQL_WITH_CONTEXT.replace(
+            "business_context",
+            business_context
+        )

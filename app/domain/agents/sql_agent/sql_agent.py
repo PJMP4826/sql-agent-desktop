@@ -27,12 +27,14 @@ class SQLAgent:
         self._agent: FunctionAgent | None = None
         self._context_chat_history: Context | None = None
     
-    def _create_tools(self) -> list[FunctionTool] | None:
+    def _create_tools(self) -> list[FunctionTool]:
         tools: list[FunctionTool] = []
 
         sql_tool = create_sql_query_function_tool(self.sql_query_tool)
 
-        return tools.append(sql_tool)
+        tools.append(sql_tool)
+
+        return tools
 
 
     @property
