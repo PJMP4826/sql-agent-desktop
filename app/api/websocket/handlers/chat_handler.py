@@ -1,6 +1,6 @@
-import asyncio
 from fastapi import WebSocket, WebSocketDisconnect
 from app.api.websocket.connection_manager import ConnectionManager
+from app.config.dependencies import get_sql_agent
 
 
 async def handle_request(websocket: WebSocket) -> str:
@@ -9,26 +9,32 @@ async def handle_request(websocket: WebSocket) -> str:
     return user_message
 
 
-async def validate_user_input(usert_input: str, manager: ConnectionManager, websocket: WebSocket) -> bool:
+async def validate_user_input(
+    usert_input: str, manager: ConnectionManager, websocket: WebSocket
+) -> bool:
     if not usert_input:
-        await manager.send_message("AI: Porfavor escribe un mensaje antes de enviar.", websocket)
+        await manager.send_message(
+            "AI: Porfavor escribe un mensaje antes de enviar.", websocket
+        )
         return False
 
     if usert_input.lower() == "exit":
         await manager.send_message("AI: Terminando sesion.", websocket)
         manager.disconnect(websocket)
         raise WebSocketDisconnect(code=100)
-    
+
     return True
 
 
-async def handle_rag_response(user_input: str, manager: ConnectionManager, websocket: WebSocket):
+async def handle_agent_response(
+    user_input: str, manager: ConnectionManager, websocket: WebSocket
+):
     try:
-        response = await asyncio.to_thread(
-            rag_instance.procesar_query, user_input
-        )
+        sql_agent = get_sql_agent()
+
+        response = await sql_agent.chat(user_input=user_input)
     except Exception as e:
         print("Error en la query: ", e)
         await manager.send_message(f"AI: Error interno - {e}", websocket)
 
-    await manager.send_message(f"AI: {response}", websocket)
+    await manager.send_message(f"{response}", websocket)  # type: ignore
