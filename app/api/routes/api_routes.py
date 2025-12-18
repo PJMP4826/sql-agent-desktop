@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi import UploadFile, File
 from typing import List
-from src.api.presentation.api_rest.document_controller import upload_handle_files
+from app.api.http.controllers.document_controller import upload_handle_files
 
 router = APIRouter(prefix="/api")
 
