@@ -21,9 +21,8 @@ async def websocket_endpoint(websocket: WebSocket):
 
             await handle_agent_response(user_input, manager, websocket)
 
-    except WebSocketDisconnect as e:
+    except WebSocketDisconnect as e: # type: ignore
         print("Cliente desconectado")
-        print("Error WebSocket", str(e))
         manager.disconnect(websocket)
     finally:
         await websocket.close()
