@@ -6,7 +6,7 @@ from pathlib import Path
 class Settings(BaseSettings):
     model_config = ConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
-    )
+    ) # type: ignore
 
     # LLM Configuracion
     google_api_key: str = Field(..., description="Google API Key")
@@ -21,16 +21,20 @@ class Settings(BaseSettings):
     db_user: str = Field(..., description="Database username")
     db_password: int = Field(..., description="Database password")
     db_name: str = Field(..., description="Database name")
-    db_port: int = Field(default="1433", description="Database port")
+    db_port: str = Field(default="1433", description="Database port")
     db_host: str = Field(..., description="Database host")
 
     # Vector Store Configuration
     chroma_path: str = Field(
-        default="./chroma_db", description="Path to ChromaDB storage"
+        default="./data/vector_store/chroma", description="Path to ChromaDB storage"
     )
     chroma_collection: str = Field(
-        default="sql_bot", description="ChromaDB collection name"
+        default="test_collection", description="ChromaDB collection name"
     )
+
+    # Agents Configurations
+    agent_sql_name: str = Field(..., description="Nombre de Agent SQL")
+    
 
     # Application Paths
     docs_path: str = Field(default="./docs", description="Path documents directory")
@@ -66,4 +70,4 @@ class Settings(BaseSettings):
         return Path(self.sql_index_path).resolve()
 
 
-settings = Settings()
+settings = Settings() # type: ignore

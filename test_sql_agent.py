@@ -14,8 +14,8 @@ async def main():
     
     # 1. Inicializar infraestructura
     vector_store = ChromaClient(
-        collection_name="test_collection",
-        persist_directory="./data/vector_store/chroma"
+        collection_name=settings.chroma_collection,
+        persist_directory=settings.chroma_path
     )
     
     gemini_client = GeminiAdapter(
