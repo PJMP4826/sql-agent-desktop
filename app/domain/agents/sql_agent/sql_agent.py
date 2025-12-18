@@ -4,20 +4,35 @@ from llama_index.core.workflow import Context
 from app.domain.agents.sql_agent.prompts.sql_agent_prompts import SQLAgentPrompts
 from app.application.ports.llm_port import LLMPort
 from app.shared.domain_exceptions import AgentException
+from app.domain.agents.sql_agent.tools.sql_query_tool import SQLQueryTool
+from app.domain.agents.sql_agent.tools.function_tools.sql_function_tool import create_sql_query_function_tool
 
 
 class SQLAgent:
     def __init__(
         self,
         llm_client: LLMPort,
+        sql_query_tool: SQLQueryTool,
     ) -> None:
         self.agent_name: str = "Asistente Contable"
-        self.tools: list[FunctionTool]
         self.llm_client = llm_client.get_llm_model()
+        self.sql_query_tool = sql_query_tool
+
         self.system_prompt = SQLAgentPrompts.get_prompt()
+
+
+        self.tools: list[FunctionTool] | None = self._create_tools()
 
         self._agent: FunctionAgent | None = None
         self._context_chat_history: Context | None = None
+    
+    def _create_tools(self) -> list[FunctionTool] | None:
+        tools: list[FunctionTool] = []
+
+        sql_tool = create_sql_query_function_tool(self.sql_query_tool)
+
+        return tools.append(sql_tool)
+
 
     @property
     def agent(self):
