@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     llm_gemini_model: str = Field(..., description="Gemini Model")
     embed_model_name: str = Field(..., description="Embedding model")
 
+    # LLM Local 
+    base_url_local_llm_host: str= Field(default="http://localhost:1234/v1", description="Host Local LLM Server")
+    llm_local_model_name: str = Field(default="", description="Local LLM Name")
+
     # Database configuration
     db_user: str = Field(..., description="Database username")
     db_password: int = Field(..., description="Database password")

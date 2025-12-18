@@ -1,28 +1,33 @@
 from typing import Optional, Dict, Any
 
 
+from typing import Optional, Dict, Any
+from copy import deepcopy
+
+
 class BaseAppException(Exception):
     def __init__(
         self,
         message: str,
+        *,
+        error_code: str,
         details: Optional[Dict[str, Any]] = None,
-        error_code: Optional[str] = None,
-    ):
-        self.message = message
-        self.details = details or {}
-        self.error_code = error_code
-        super().__init__(self.message)
+    ) -> None:
+        super().__init__(message)
 
-    def __str__(self):
-        if self.message:
-            return f"[{self.error_code}] {self.message}"
-        return self.message
+        self.error_code: str = error_code
+
+        self.details: Dict[str, Any] = deepcopy(details) if details else {}
+
+    def __str__(self) -> str:
+        return f"[{self.error_code}] {self.args[0]}"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "error": self.message,
+            "error": self.args[0],
             "error_code": self.error_code,
-            "details": self.details,
+            "details": deepcopy(self.details),
+            "type": self.__class__.__name__,
         }
 
 
