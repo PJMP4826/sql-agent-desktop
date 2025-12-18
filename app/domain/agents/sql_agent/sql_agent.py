@@ -6,6 +6,7 @@ from app.application.ports.llm_port import LLMPort
 from app.shared.domain_exceptions import AgentException
 from app.domain.agents.sql_agent.tools.sql_query_tool import SQLQueryTool
 from app.domain.agents.sql_agent.tools.function_tools.sql_function_tool import create_sql_query_function_tool
+from app.domain.agents.sql_agent.tools.function_tools.current_date_time_tool import create_current_date_time
 
 
 class SQLAgent:
@@ -31,8 +32,10 @@ class SQLAgent:
         tools: list[FunctionTool] = []
 
         sql_tool = create_sql_query_function_tool(self.sql_query_tool)
+        date_time_tool = create_current_date_time()
 
         tools.append(sql_tool)
+        tools.append(date_time_tool)
 
         return tools
 
