@@ -2,6 +2,8 @@ from app.infrastructure.database.vector_store.chroma_client import ChromaClient
 from app.infrastructure.llm.gemini.client import GeminiAdapter
 from app.domain.factories.sql_agent_factory import SQLAgentFactory
 from app.domain.agents.sql_agent.sql_agent import SQLAgent
+from app.api.http.controllers.document_controller import DocumentController
+from app.domain.repositories.document_repository import DocumentRepository
 from app.config.settings import Settings
 from functools import lru_cache
 
@@ -40,3 +42,12 @@ def get_sql_agent() -> SQLAgent:
     sql_agent = get_sql_agent_factory().create_sql_agent(settings.agent_sql_name)
 
     return sql_agent
+
+
+def get_document_repository() -> DocumentRepository:
+    return DocumentRepository()
+
+def get_document_controller() -> DocumentController:
+    repository = get_document_repository()
+
+    return DocumentController(repository=repository)
