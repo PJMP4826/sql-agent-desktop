@@ -1,6 +1,6 @@
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
-from src.api.presentation.websocket.connection_manager import ConnectionManager
-from src.api.presentation.websocket.chat_handler import handle_request, validate_user_input, handle_agent_response
+from app.api.websocket.connection_manager import ConnectionManager
+from app.api.websocket.handlers.chat_handler import handle_request, validate_user_input, handle_agent_response
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 manager = ConnectionManager()
@@ -23,6 +23,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
     except WebSocketDisconnect as e:
         print("Cliente desconectado")
+        print("Error WebSocket", str(e))
         manager.disconnect(websocket)
     finally:
         await websocket.close()

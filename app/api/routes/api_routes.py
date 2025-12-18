@@ -7,7 +7,7 @@ router = APIRouter(prefix="/api")
 
 
 @router.post("/uploads/files")
-async def upload_files(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...)):
     return await upload_handle_files([file])
 
 @router.post("/uploads/multiples/files")
