@@ -52,6 +52,7 @@ class SQLQueryTool:
             result = sql_query_service.query(user_query=query)
 
             logger.info(f"SQL GENERADO: {result.sql_query}")
+            print(f"SQL GENERADO: {result.sql_query}")
 
             return result.response
         except Exception as e:

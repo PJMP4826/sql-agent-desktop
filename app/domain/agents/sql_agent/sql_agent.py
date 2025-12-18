@@ -60,9 +60,9 @@ class SQLAgent:
     def create_context_chat_history(self) -> Context:
         return Context(self.agent)
 
-    def chat(self, user_input: str) -> str:
+    async def chat(self, user_input: str) -> str:
         try:
-            response = self.agent.run(user_msg=user_input)
+            response = await self.agent.run(user_msg=user_input, ctx=self.context_chat_history)
 
             return str(response)
         except Exception as e:
