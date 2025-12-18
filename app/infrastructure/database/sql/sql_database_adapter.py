@@ -10,7 +10,7 @@ class SQLDatabaseAdapter:
         self.connection_manager = connection_manager
         self._sql_database: Optional[SQLDatabase] = None
 
-    def _create_sql_database(self, include_tables: list[str]) -> SQLDatabase:
+    def create_sql_database(self, include_tables: list[str]) -> SQLDatabase:
         try:
             sql_database = SQLDatabase(
                 self.connection_manager.get_engine(),
