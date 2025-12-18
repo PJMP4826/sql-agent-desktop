@@ -13,8 +13,9 @@ class SQLAgent:
         self,
         llm_client: LLMPort,
         sql_query_tool: SQLQueryTool,
+        agent_name: str
     ) -> None:
-        self.agent_name: str = "Asistente Contable"
+        self.agent_name: str = agent_name
         self.llm_client = llm_client.get_llm_model()
         self.sql_query_tool = sql_query_tool
 
