@@ -7,6 +7,7 @@ from app.domain.repositories.document_repository import DocumentRepository
 from app.config.settings import Settings
 from functools import lru_cache
 
+_sql_agent: SQLAgent | None = None
 
 @lru_cache
 def get_settings() -> Settings:
@@ -32,16 +33,25 @@ def get_llm_client() -> GeminiAdapter:
     )
 
 
-def get_sql_agent_factory() -> SQLAgentFactory:
-    return SQLAgentFactory(llm_client=get_llm_client(), vector_store=get_vector_store())
+# def get_sql_agent_factory() -> SQLAgentFactory:
+#     return SQLAgentFactory(llm_client=get_llm_client(), vector_store=get_vector_store())
 
 
 def get_sql_agent() -> SQLAgent:
     settings = get_settings()
 
-    sql_agent = get_sql_agent_factory().create_sql_agent(settings.agent_sql_name)
+    global _sql_agent
 
-    return sql_agent
+    if _sql_agent is None:
+        factory = SQLAgentFactory(llm_client=get_llm_client(), vector_store=get_vector_store())
+
+        _sql_agent = factory.create_sql_agent(settings.agent_sql_name)
+
+    return _sql_agent
+
+def reset_sql_agent():
+    global _sql_agent
+    _sql_agent = None
 
 
 def get_document_repository() -> DocumentRepository:

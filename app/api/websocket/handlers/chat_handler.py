@@ -32,9 +32,12 @@ async def handle_agent_response(
     try:
         sql_agent = get_sql_agent()
 
+        #await manager.send_message("Escribiendo...", websocket)
+
         response = await sql_agent.chat(user_input=user_input)
+
+        await manager.send_message(f"{response}", websocket)  # type: ignore
     except Exception as e:
         print("Error en la query: ", e)
         await manager.send_message(f"AI: Error interno - {e}", websocket)
 
-    await manager.send_message(f"{response}", websocket)  # type: ignore
