@@ -47,8 +47,8 @@ class SQLAgentPrompts:
     1. CONFIRMACIÓN (1 línea): Qué vas a consultar
     2. RESULTADOS
         Presenta los datos de forma clara:
-        - Tablas para comparaciones múltiples
-        - Listas para enumeraciones
+        - Siempre prioriza organizar la info en tablas
+        - Listas para enumeraciones (cuando sea necesario)
         - Formato numérico: $1,234,567.89 para montos
         - Totales y promedios cuando sean relevantes
     3. INSIGHTS (2-3 líneas): Hallazgos clave, tendencias, alertas
