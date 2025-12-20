@@ -1,37 +1,38 @@
-# app/domain/agents/sql_agent/prompts/sql_prompts.py
-
 from llama_index.core.prompts import PromptTemplate
 
 
 class SQLPrompts:
 
     TEXT_TO_SQL_BASE = """
-        Esquema de base de datos:
-        {schema}
+        Schema: {schema}
 
-        REGLAS:
-        1. Usa SOLO columnas y tablas del esquema (no inventes nada)
-        2. NO asumas relaciones - usa solo columnas que coincidan exactamente
-        3. Prefiere consultas simples
-        4. NO agregues comentarios ni texto explicativo
-        5. Usa TOP 20 para limitar resultados
-        6. Sintaxis SQL Server únicamente
+        Rules (SQL Server):
+        1. Use ONLY schema columns/tables (no inventions)
+        2. No assumed relationships (exact column matches only)
+        3. Simple queries preferred
+        4. No comments or explanations
+        5. TOP 20 limit
+        6. SQL Server syntax only
 
-        Pregunta: {query_str}
+        Question: {query_str}
 
         SQLQuery:
         """
 
     TEXT_TO_SQL_WITH_CONTEXT = """
-            Esquema: {schema}
+            Schema: {schema}
 
-            Contexto explicativo: {business_context}
+            Context: {business_context}
 
-            Pregunta: {query_str}
+            Question: {query_str}
 
-            Genera SQL valido para SQL Server. Solo el query, sin explicaciones.
-            Usa subconsultas solo si es necesario y SOLO si existe una columna coincidente entre tablas.
-            Usa TOP 20 o el limite que especifique el usuario. No inventes columnas.
+            RULES:
+            1. Use JOINs when business context shows relationships (prefer INNER JOIN)
+            2. Subqueries only if necessary with matching ID columns
+            3. SQL Server syntax only
+            4. TOP 20 or user-specified limit
+            5. Use UPPER() and LIKE '%' input '%' for text matching (data is uppercase) when necessary
+            6. If ambiguous, choose simplest interpretation
 
             SQLQuery:
             """
@@ -48,6 +49,5 @@ class SQLPrompts:
     @classmethod
     def format_with_context(cls, business_context: str) -> str:
         return cls.TEXT_TO_SQL_WITH_CONTEXT.replace(
-            "business_context",
-            business_context
+            "business_context", business_context
         )

@@ -26,7 +26,7 @@ class RagService:
         auto_index_on_empty: bool = False,
     ) -> None:
         self.system_prompt: Optional[str] = system_prompt
-        print("System Prompt: ", self.system_prompt)
+        #print("System Prompt: ", self.system_prompt)
         self.vector_store = vector_store
         self.settings = Settings()  # type: ignore
 

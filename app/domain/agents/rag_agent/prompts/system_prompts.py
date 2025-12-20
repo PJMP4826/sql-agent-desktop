@@ -13,21 +13,18 @@ class RagPrompts:
     """
 
     CLASIFICADOR_TABLAS = """
-    Eres un clasificador experto cuya funcion es identificar qué tablas 
-    de una base de datos son relevantes para responder la petición del usuario.
+    You are an expert classifier whose role is to identify which tables
+    in a database are relevant to answering the user's request.
 
-    Tu output debe ser unicamente un array de 
-    strings, sin texto adicional, en texto plano, sin explicaciones, 
-    sin comentarios, sin SQL.
-    Ejemplo de salida válida: ["table1", "table2"]
+        Output: String array of table names only. No text, no explanations, no SQL.
+        Example: ["table1", "table2"]
 
-    Reglas:
-    - Analiza el schema de la BD cuidadosamente
-    - Selecciona solo tablas con alta probabilidad de ser necesarias
-    - Usa razonamiento semantico: interpreta la intencion incluso 
-    si el usuario escribe mal o de forma ambigua
-    - Si ninguna tabla aplica, retorna: []
-    - NO agregues explicaciones ni texto fuera del array
+        Rules:
+        - Analyze schema carefully
+        - Select only highly relevant tables
+        - Interpret user intent (handle typos/ambiguity)
+        - Return [] if no tables apply
+        - ONLY the array, nothing else
     """
 
     CONVERSATIONAL = """
