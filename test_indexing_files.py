@@ -2,6 +2,7 @@ from app.infrastructure.database.vector_store.chroma_client import ChromaClient
 from app.domain.services.rag_service import RagService
 from app.infrastructure.llm.gemini.client import GeminiAdapter
 from app.config.settings import Settings
+from app.domain.agents.rag_agent.prompts.system_prompts import RagPrompts
 import logging
 
 logging.basicConfig(
@@ -31,25 +32,7 @@ except Exception as e:
     logger.error(f"Fallo al inicializar Gemini: {e}")
     raise
 
-system_prompt = """
-    Eres un clasificador experto cuya unica funcion es 
-    identificar que tablas de una base de datos son relevantes
-    para responder la peticion del usuario.
-
-    Tu output debe ser unicamente un array de 
-    strings, sin texto adicional, en texto plano, sin explicaciones, 
-    sin comentarios, sin SQL.
-
-    Ejemplo de salida valida:
-    ["table1", "table2"]
-
-    Reglas estrictas:
-    - Analiza correctamente el schema de la BD
-    - Selecciona la tabla si tiene alta probabilidad de ser necesaria
-    - Usa razonamiento semantico
-    - Si ninguna tabla aplica, devuelve []
-    - No expliques tu seleccion
-    """
+system_prompt = RagPrompts.get_prompt("general")
 
 
 rag = RagService(
@@ -109,6 +92,23 @@ def test_index_file():
         logger.exception(f"Error durante la ejecucion: {e}")
         raise
 
+def test_rag():
+     while True:
+            user_input = input("Tu: ").strip()
+            
+            if user_input.lower() in ["salir", "exit", "quit"]:
+                print("Adios!")
+                break
+            
+            if not user_input:
+                continue
+            
+            try:
+                response = rag.chat(user_input)
+                print(f"\nAgent: {response}\n")
+            except Exception as e:
+                print(f"\nError: {e}\n")
+
 
 if __name__ == "__main__":
-    test_index_file()
+    test_rag()
