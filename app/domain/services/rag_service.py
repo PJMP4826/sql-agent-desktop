@@ -40,7 +40,7 @@ class RagService:
 
         if auto_index_on_empty and self._is_vectore_store_empty():
                 try:
-                    self.index_directory()
+                    self.index_directory(self.settings.docs_path)
                 except Exception as e:
                     logger.error(f"Auto-indexing failed: {e}")
 
@@ -205,7 +205,7 @@ class RagService:
 
             self.refresh_all()
 
-            result = self.index_directory()
+            result = self.index_directory(self.settings.docs_path)
 
             return result
 

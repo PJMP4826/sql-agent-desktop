@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class ChromaClient(VectorStorePort):
 
     def __init__(
-        self, collection_name: str, persist_directory: str = "./chroma_db"
+        self, collection_name: str, persist_directory: str
     ) -> None:
         self.persist_directory = persist_directory
         self.collection_name = collection_name
@@ -23,6 +23,7 @@ class ChromaClient(VectorStorePort):
                 self.collection_name
             )
         except Exception as e:
+            print(f"DEBUG CHROMA ERROR: {str(e)}")
             raise VectorStoreException(
                 "Error al inicializar Chroma client o collection",
                 collection=self.collection_name,

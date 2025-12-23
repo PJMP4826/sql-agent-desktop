@@ -123,6 +123,7 @@ class DocumentManager:
 
             return documents
         except Exception as e:
+            print(f"DEBUG: Intentando cargar desde: {directory_path}")
             raise DomainException(
                 "Error cargando documentos del directorio",
                 details={"directory_path": directory_path, "error": str(e)},
