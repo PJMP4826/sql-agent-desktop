@@ -13,6 +13,8 @@ fastapi = "*"
 pyodbc = "*"
 pydantic-settings = "*"
 llama-index-vector-stores-chroma = "*"
+llama-index-vector-stores-qdrant = "*"
+qdrant-client = "*"
 
 [dev-packages]
 pyinstaller = "*"

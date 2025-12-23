@@ -11,9 +11,9 @@ class VectorStorePort(ABC):
     def get_vector_store(self) -> BasePydanticVectorStore:
         pass
 
-    @abstractmethod
-    def add_documents(self, documents: List[Document]) -> List[str]:
-        pass
+    # @abstractmethod
+    # def add_documents(self, documents: List[Document]) -> List[str]:
+    #     pass
 
     # buscar documentos
     @abstractmethod
