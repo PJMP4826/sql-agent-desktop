@@ -3,29 +3,30 @@ from pydantic_settings import BaseSettings
 from pydantic import Field, ConfigDict
 from pathlib import Path
 
+
 def get_base_path() -> Path:
     """Obtiene la ruta base del proyecto"""
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, "frozen", False):
         # si la app esta empaquetada con PyInstaller
         return Path(sys.executable).parent
     else:
         # si es script o Docker
         return Path(__file__).resolve().parent.parent.parent
 
+
 BASE_DIR = get_base_path()
 
+
 class Settings(BaseSettings):
-    
 
     model_config = ConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
-    ) # type: ignore
+    )  # type: ignore
 
     # LLM Configuracion
     google_api_key: str = Field(..., description="Google API Key")
     llm_gemini_model: str = Field(..., description="Gemini Model")
     embed_model_name: str = Field(..., description="Embedding model")
-    
 
     # Database configuration
     db_user: str = Field(..., description="Database username")
@@ -35,19 +36,18 @@ class Settings(BaseSettings):
     db_host: str = Field(..., description="Database host")
 
     # Vector Store Configuration
-    chroma_path: str = Field(
-        default=str(BASE_DIR / "data" / "vector_store" / "chroma"), description="Path to ChromaDB storage"
-    )
-    chroma_collection: str = Field(
-        ..., description="ChromaDB collection name"
+    qdrant_collection: str = Field(..., description="Qdrant collection name")
+    qdrant_url_server: str = Field(
+        ..., description="Url del servidor de Vector Store de Qdrant"
     )
 
     # Agents Configurations
     agent_sql_name: str = Field(..., description="Nombre de Agent SQL")
-    
 
     # Application Paths
-    docs_path: str = Field(default=str(BASE_DIR / "books"), description="Path documents directory")
+    docs_path: str = Field(
+        default=str(BASE_DIR / "books"), description="Path documents directory"
+    )
     # storage_path: str = Field(
     #     default="./storage", description="Path application storage"
     # )
@@ -71,13 +71,10 @@ class Settings(BaseSettings):
     # def storage_path_resolved(self) -> Path:
     #     return Path(self.storage_path).resolve()
 
-    @property
-    def chroma_path_resolved(self) -> Path:
-        return Path(self.chroma_path).resolve()
-
+  
     # @property
     # def sql_index_path_resolved(self) -> Path:
     #     return Path(self.sql_index_path).resolve()
 
 
-settings = Settings() # type: ignore
+settings = Settings()  # type: ignore
