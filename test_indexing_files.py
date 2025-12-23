@@ -1,5 +1,6 @@
-from app.infrastructure.database.vector_store.chroma_client import ChromaClient
-from app.domain.services.rag_service import RagService
+from app.infrastructure.database.vector_store.qdrant_client import QdrantVectorStoreClient
+# from app.domain.services.rag_service import RagService
+from app.domain.factories.rag_factory import RagServiceFactory
 from app.infrastructure.llm.gemini.client import GeminiAdapter
 from app.config.settings import Settings
 from app.domain.agents.rag_agent.prompts.system_prompts import RagPrompts
@@ -14,9 +15,8 @@ settings = Settings() # type: ignore
 logger.info(f"Modelo LLM: {settings.llm_gemini_model}")
 logger.info(f"Modelo Embed: {settings.embed_model_name}")
 
-vector_store = ChromaClient(
-    collection_name='test_collection',
-    persist_directory='./data/vector_store/chroma'
+vector_store = QdrantVectorStoreClient(
+    collection_name='test_collection'
 )
 
 logger.info(f"Vector store inicializado. Conteo: {vector_store.get_collection_count()}")
@@ -35,12 +35,12 @@ except Exception as e:
 system_prompt = RagPrompts.get_prompt("general")
 
 
-rag = RagService(
-        vector_store=vector_store,
-        llm_client=gemini_client,
-        system_prompt=system_prompt,  
-        auto_index_on_empty=False  
-    )
+rag_factory = RagServiceFactory(
+    vector_store=vector_store,
+    llm_client=gemini_client,
+)
+
+classifier_rag = rag_factory.create_classifier_rag()
 
 def main():
     try:
@@ -50,7 +50,8 @@ def main():
         if current_count == 0:
             logger.info("Vector store vacio, indexando documentos...")
             
-            result = rag.index_directory("./books")
+            directory: str = "./books"
+            result = classifier_rag.index_directory(directory=directory)
             
             logger.info(f"Resultado de indexacion: {result}")
             
@@ -59,13 +60,13 @@ def main():
             
             if post_count == 0:
                 logger.error("Indexacion completada pero el conteo sigue siendo 0!")
-                logger.error("Verifique si el directorio ./docs existe y tiene documentos")
+                logger.error(f"Verifique si el directorio {directory} existe y tiene documentos")
                 return
         else:
             logger.info(f"Vector store ya tiene {current_count} documentos")
         
         logger.info("Probando funcionalidad de chat...")
-        response = rag.chat("Muestrame las tablas de clientes")
+        response = classifier_rag.chat("Muestrame las tablas de clientes")
         logger.info(f"Respuesta del Chat: {response}")
                 
     except Exception as e:
@@ -79,7 +80,7 @@ def test_index_file():
         logger.info(f"Conteo de documentos actual: {current_count}")
 
         file_path = "./COM_BDD_CONTEXT_merged.pdf"
-        result = rag.add_document(file_path=file_path)
+        result = classifier_rag.add_document(file_path=file_path)
 
         logger.info(f"Resultado de indexacion: {result}")
         post_count = vector_store.get_collection_count()
@@ -104,11 +105,11 @@ def test_rag():
                 continue
             
             try:
-                response = rag.chat(user_input)
+                response = classifier_rag.chat(user_input)
                 print(f"\nAgent: {response}\n")
             except Exception as e:
                 print(f"\nError: {e}\n")
 
 
 if __name__ == "__main__":
-    test_rag()
+    main()
