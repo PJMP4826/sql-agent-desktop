@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class QdrantVectorStoreClient(VectorStorePort):
-    def __init__(self, collection_name: str, url: str = "http://localhost:6333") -> None:
+    def __init__(self, collection_name: str, url: str = "127.0.0.1:6333") -> None:
         self.collection_name = collection_name
 
         try:
