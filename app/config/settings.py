@@ -1,9 +1,22 @@
+import sys
 from pydantic_settings import BaseSettings
 from pydantic import Field, ConfigDict
 from pathlib import Path
 
+def get_base_path() -> Path:
+    """Obtiene la ruta base del proyecto"""
+    if getattr(sys, 'frozen', False):
+        # si la app esta empaquetada con PyInstaller
+        return Path(sys.executable).parent
+    else:
+        # si es script o Docker
+        return Path(__file__).resolve().parent.parent.parent
+
+BASE_DIR = get_base_path()
 
 class Settings(BaseSettings):
+    
+
     model_config = ConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     ) # type: ignore
@@ -23,10 +36,10 @@ class Settings(BaseSettings):
 
     # Vector Store Configuration
     chroma_path: str = Field(
-        default="./data/vector_store/chroma", description="Path to ChromaDB storage"
+        default=str(BASE_DIR / "data" / "vector_store" / "chroma"), description="Path to ChromaDB storage"
     )
     chroma_collection: str = Field(
-        default="test_collection", description="ChromaDB collection name"
+        ..., description="ChromaDB collection name"
     )
 
     # Agents Configurations
@@ -34,13 +47,13 @@ class Settings(BaseSettings):
     
 
     # Application Paths
-    docs_path: str = Field(default="./docs", description="Path documents directory")
-    storage_path: str = Field(
-        default="./storage", description="Path application storage"
-    )
-    sql_index_path: str = Field(
-        default="./storage/sql_index", description="Path SQL index storage"
-    )
+    docs_path: str = Field(default=str(BASE_DIR / "books"), description="Path documents directory")
+    # storage_path: str = Field(
+    #     default="./storage", description="Path application storage"
+    # )
+    # sql_index_path: str = Field(
+    #     default="./storage/sql_index", description="Path SQL index storage"
+    # )
 
     @property
     def database_url(self) -> str:
@@ -54,17 +67,17 @@ class Settings(BaseSettings):
     def docs_path_resolved(self) -> Path:
         return Path(self.docs_path).resolve()
 
-    @property
-    def storage_path_resolved(self) -> Path:
-        return Path(self.storage_path).resolve()
+    # @property
+    # def storage_path_resolved(self) -> Path:
+    #     return Path(self.storage_path).resolve()
 
     @property
     def chroma_path_resolved(self) -> Path:
         return Path(self.chroma_path).resolve()
 
-    @property
-    def sql_index_path_resolved(self) -> Path:
-        return Path(self.sql_index_path).resolve()
+    # @property
+    # def sql_index_path_resolved(self) -> Path:
+    #     return Path(self.sql_index_path).resolve()
 
 
 settings = Settings() # type: ignore
