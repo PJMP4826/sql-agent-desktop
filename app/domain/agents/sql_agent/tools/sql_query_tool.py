@@ -56,7 +56,7 @@ class SQLQueryTool:
             return result.response
         except Exception as e:
             raise DomainException(
-                "Error ejecutand NL query",
+                f"Error ejecutand NL query: {str(e)}",
                 details={"success": False, "error": str(e), "user_input": query},
             )
 

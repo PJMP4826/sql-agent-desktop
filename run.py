@@ -6,10 +6,14 @@ import uvicorn
 import time
 from pathlib import Path
 from dotenv import load_dotenv
+from main import app  # type: ignore
 
 def get_project_root() -> Path:
     """raiz del proyecto."""
     if getattr(sys, 'frozen', False):
+        # crear una ruta para la cache de tiktoken dentro de la carpeta temporal del exe
+        meipass = getattr(sys, '_MEIPASS', os.getcwd())
+        os.environ["TIKTOKEN_CACHE_DIR"] = os.path.join(meipass, "tiktoken_cache")
         return Path(sys.executable).parent
     return Path(__file__).resolve().parent
 

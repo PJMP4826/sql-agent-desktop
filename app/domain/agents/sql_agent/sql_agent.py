@@ -72,7 +72,7 @@ class SQLAgent:
             return str(response)
         except Exception as e:
             raise AgentException(
-                "Error preguntando al SQL Agent",
+                f"Error preguntando al SQL Agent {str(e)}",
                 agent_name=self.agent_name,
                 details={"user_input": user_input, "error": str(e)},
             )
