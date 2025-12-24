@@ -1,7 +1,6 @@
 import re
 import json
 import logging
-from typing import Any
 from app.domain.services.rag_service import RagService
 from app.shared.constants.known_tables import filter_valid_tables
 from app.shared.domain_exceptions import DomainException
@@ -55,28 +54,43 @@ class TableClassifier:
             )
 
     def _parse_response(self, response: str) -> list[str]:
-
         response_clean: str = response.strip()
-
+        
         try:
-            json_match = re.search(r"\[.*?\]", response_clean, re.DOTALL)
+            tables_list: list[str] = json.loads(response_clean)
+            if isinstance(tables_list, list) and all(isinstance(t, str) for t in tables_list): # type: ignore
+                return tables_list
+        except Exception:
+            pass
 
-            if json_match:
-                response_clean = json_match.group(0)
+        json_match = re.search(r"\[.*?\]", response_clean, re.DOTALL)
+        if json_match:
+            try:
+                tables_list = json.loads(json_match.group(0))
+                if isinstance(tables_list, list) and all(isinstance(t, str) for t in tables_list): # type: ignore
+                    return tables_list
+            except Exception:
+                pass
 
-            tables_list: list[Any] = json.loads(response_clean)
+        matches = re.findall(r'`([^`]+)`', response_clean)
+        if matches:
+            return matches
 
-            if not isinstance(tables_list, list):  # type: ignore
-                print(f"Error: La respuesta no es una lista: {tables_list}")
-                return []
+        possible_lines = [line.strip() for line in response_clean.splitlines() if line.strip()]
+        clean_lines: list[str] = []
+        for line in possible_lines:
+            line = re.sub(r'^[-*•]\s*', '', line)
+            if len(line.split()) == 1 and len(line) < 60:
+                clean_lines.append(line)
+        if clean_lines:
+            return clean_lines
 
-            tables: list[str] = [t for t in tables_list if isinstance(t, str)]
-            return tables
+        # split por coma
+        if ',' in response_clean:
+            posibles = [x.strip() for x in response_clean.split(',')]
+            if all(len(x.split()) == 1 for x in posibles):
+                return posibles
 
-        except json.JSONDecodeError as e:
-            logger.error(f"Invalid JSON response: {e}")
-            logger.debug(f"Response was: {response[:500]}")
-            return []
-        except Exception as e:
-            logger.exception(f"Error parsing response: {e}")
-            return []
+        # si nada funciona 
+        logger.warning(f"No fue posible parsear tablas validas: {response[:200]}")
+        return []
