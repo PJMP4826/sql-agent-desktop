@@ -1,6 +1,7 @@
 import logging
 from app.domain.agents.sql_agent.sql_agent import SQLAgent
 from app.domain.agents.sql_agent.tools.sql_query_tool import SQLQueryTool
+from app.domain.agents.sql_agent.tools.get_context_conversation import GetContextConversation
 from app.domain.services.context_builder import ContextBuilder
 from app.domain.services.table_classifier import TableClassifier
 from app.domain.factories.rag_factory import RagServiceFactory
@@ -68,11 +69,16 @@ class SQLAgentFactory:
                 connection_manager=connection_manager,
                 sql_adapter=sql_adapter
             )
+
+            get_context_tool = GetContextConversation(
+                rag_service=general_rag
+            )
             
             # 5. Crear SQL Agent
             sql_agent = SQLAgent(
                 llm_client=self.llm_client,
                 sql_query_tool=sql_query_tool,
+                get_context_tool=get_context_tool,
                 agent_name=agent_name
             )
             

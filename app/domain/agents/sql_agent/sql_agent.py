@@ -5,8 +5,10 @@ from app.domain.agents.sql_agent.prompts.sql_agent_prompts import SQLAgentPrompt
 from app.application.ports.llm_port import LLMPort
 from app.shared.domain_exceptions import AgentException
 from app.domain.agents.sql_agent.tools.sql_query_tool import SQLQueryTool
+from app.domain.agents.sql_agent.tools.get_context_conversation import GetContextConversation
 from app.domain.agents.sql_agent.tools.function_tools.sql_function_tool import create_sql_query_function_tool
 from app.domain.agents.sql_agent.tools.function_tools.current_date_time_tool import create_current_date_time
+from app.domain.agents.sql_agent.tools.function_tools.get_context_function_tool import create_get_context_function_tool
 
 
 class SQLAgent:
@@ -14,11 +16,13 @@ class SQLAgent:
         self,
         llm_client: LLMPort,
         sql_query_tool: SQLQueryTool,
+        get_context_tool: GetContextConversation,
         agent_name: str
     ) -> None:
         self.agent_name: str = agent_name
         self.llm_client = llm_client.get_llm_model()
         self.sql_query_tool = sql_query_tool
+        self.get_context_tool = get_context_tool
 
         self.system_prompt = SQLAgentPrompts.get_prompt()
 
@@ -33,9 +37,11 @@ class SQLAgent:
 
         sql_tool = create_sql_query_function_tool(self.sql_query_tool)
         date_time_tool = create_current_date_time()
+        get_context_conversation_tool = create_get_context_function_tool(self.get_context_tool)
 
         tools.append(sql_tool)
         tools.append(date_time_tool)
+        tools.append(get_context_conversation_tool)
 
         return tools
 
