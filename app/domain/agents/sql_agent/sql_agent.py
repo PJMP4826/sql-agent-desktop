@@ -1,5 +1,6 @@
 from llama_index.core.tools import FunctionTool
-from llama_index.core.agent.workflow import FunctionAgent
+from llama_index.core.agent.workflow import FunctionAgent, ToolCall, ToolCallResult, AgentStream
+from llama_index.core.agent import ToolCall, ToolCallResult
 from llama_index.core.workflow import Context
 from app.domain.agents.sql_agent.prompts.sql_agent_prompts import SQLAgentPrompts
 from app.application.ports.llm_port import LLMPort
@@ -76,9 +77,39 @@ class SQLAgent:
 
     async def chat(self, user_input: str) -> str:
         try:
-            response = await self.agent.run(user_msg=user_input, ctx=self.context_chat_history)
+            tool_results = []
 
-            return str(response)
+            handler = self.agent.run(user_msg=user_input, ctx=self.context_chat_history)
+
+            async for event in handler.stream_events():
+                if isinstance(event, ToolCall):
+                    tool_kwargs_str = (
+                        str(event.tool_kwargs)[:500] + " ..."
+                        if len(str(event.tool_kwargs)) > 500
+                        else str(event.tool_kwargs)
+                    )
+
+                    tool_results.append({
+                        "tool_name" : event.tool_name,
+                        "tool_kwargs_str": tool_kwargs_str
+                    })
+                elif isinstance(event, ToolCallResult):
+                    tool_output_str = (
+                        str(event.tool_output)[:500] + " ..."
+                        if len(str(event.tool_output)) > 500
+                        else str(event.tool_output)
+                    )
+
+                    tool_results.append({
+                        "tool_name" : event.tool_name,
+                        "tool_output": event.tool_output
+                    })
+
+
+            final_response = await handler
+            
+            print("Tool results: ", tool_results)
+            return str(final_response)
         except Exception as e:
             raise AgentException(
                 f"Error preguntando al SQL Agent {str(e)}",
