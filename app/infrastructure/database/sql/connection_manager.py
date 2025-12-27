@@ -40,6 +40,7 @@ class ConnetionManager:
             return engine
 
         except Exception as e:
+            print(f"No se ha establecido connection a SQL Server: {str(e)}")
             raise InfrastructureException(
                 "No se ha establecido connection a SQL Server",
                 details={
