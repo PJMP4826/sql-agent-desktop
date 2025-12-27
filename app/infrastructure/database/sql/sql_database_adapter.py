@@ -20,7 +20,7 @@ class SQLDatabaseAdapter:
             return sql_database
         except Exception as e:
             raise InfrastructureException(
-                "Error al crear SQL Database",
+                f"Error al crear SQL Database: {str(e)}",
                 details={"tables": include_tables, "error": str(e)},
             )
 

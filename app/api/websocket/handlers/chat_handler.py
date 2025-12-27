@@ -32,12 +32,31 @@ async def handle_agent_response(
     try:
         sql_agent = get_sql_agent()
 
-        #await manager.send_message("Escribiendo...", websocket)
+        # await manager.send_message("Escribiendo...", websocket)
 
-        response = await sql_agent.chat(user_input=user_input)
+        result = await sql_agent.chat(user_input=user_input)
 
-        await manager.send_message(f"{response}", websocket)  # type: ignore
+        if result.has_excel_file():
+            excel_file = result.get_excel_files()
+            await manager.send_message_json(
+                message=excel_file.to_websocket_message(),
+                websocket=websocket,
+            )
+
+        response_txt = result.response_text
+
+        print("Response de agent: ", response_txt)
+        await manager.send_message_json(
+            message={"type": "message", "content": str(response_txt)},
+            websocket=websocket,
+        )  # type: ignore
+
     except Exception as e:
         print("Error en la query: ", e)
-        await manager.send_message(f"AI: Error interno - {e}", websocket)
-
+        await manager.send_message_json(
+            message={
+                "type": "error",
+                "content": str(e),
+            },
+            websocket=websocket,
+        )

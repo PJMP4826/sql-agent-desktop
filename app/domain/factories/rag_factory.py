@@ -25,7 +25,7 @@ class RagServiceFactory:
             vector_store=self.vector_store,
             llm_client=self.llm_client,
             system_prompt=RagPrompts.get_prompt("clasificador_tablas"),
-            auto_index_on_empty=False
+            auto_index_on_empty=True
         )
     
     def create_general_rag(self) -> RagService:
@@ -36,7 +36,7 @@ class RagServiceFactory:
             vector_store=self.vector_store,
             llm_client=self.llm_client,
             system_prompt=RagPrompts.get_prompt("general"),
-            auto_index_on_empty=False
+            auto_index_on_empty=True
         )
     
     def create_conversational_rag(self) -> RagService:
@@ -47,5 +47,5 @@ class RagServiceFactory:
             vector_store=self.vector_store,
             llm_client=self.llm_client,
             system_prompt=RagPrompts.get_prompt("conversational"),
-            auto_index_on_empty=False
+            auto_index_on_empty=True
         )

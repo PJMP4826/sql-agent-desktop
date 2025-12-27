@@ -110,7 +110,6 @@
         </button>
       </div>
 
-      
       <div
         class="p-4 border-b border-gray-700 flex flex-col items-center space-y-4 hidden"
         id="sidebarHeaderClosed">
@@ -157,13 +156,9 @@
       </div> -->
     </div>
 
-    
     <div class="flex-1 flex flex-col bg-gray-900">
-      <div class="flex-1 overflow-y-auto p-6" id="chatHistory">
-        
-      </div>
+      <div class="flex-1 overflow-y-auto p-6" id="chatHistory"></div>
 
-      
       <div class="border-t border-gray-700 p-4">
         <div class="relative">
           <textarea
@@ -181,9 +176,8 @@
     </div>
 
     <script>
-      
       let socket = null;
-      let lastUserMessage = ""; 
+      let lastUserMessage = "";
       let typingIndicator = null;
       const chatHistory = document.getElementById("chatHistory");
       const messageInput = document.getElementById("message-input");
@@ -191,13 +185,11 @@
       const connectBtn = document.getElementById("connect-btn");
       const disconnectBtn = document.getElementById("disconnect-btn");
 
-      
       marked.setOptions({
         breaks: true,
         gfm: true,
       });
 
-      
       const Sidebar = {
         elements: {
           sidebar: document.getElementById("leftSidebar"),
@@ -240,7 +232,6 @@
         },
       };
 
-     
       const Messages = {
         scrollToBottom() {
           chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -251,17 +242,17 @@
           const messageDiv = document.createElement("div");
           messageDiv.className = "flex items-start mb-4 typing-message";
           messageDiv.innerHTML = `
-            <div class="flex-shrink-0">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2oUOmNfffytXSOZ5ptZ8rgPHgn1msZsDp7XiggkGmXJuaO1RP" alt="AI" class="w-8 h-8 rounded-full">
-            </div>
-            <div class="ml-3 bg-gray-700 rounded-lg p-4">
-              <div class="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-          `;
+                  <div class="flex-shrink-0">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2oUOmNfffytXSOZ5ptZ8rgPHgn1msZsDp7XiggkGmXJuaO1RP" alt="AI" class="w-8 h-8 rounded-full">
+                  </div>
+                  <div class="ml-3 bg-gray-700 rounded-lg p-4">
+                    <div class="typing-indicator">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                `;
           typingIndicator = messageDiv;
           chatHistory.appendChild(messageDiv);
           this.scrollToBottom();
@@ -279,15 +270,15 @@
           messageDiv.className = "flex items-start mb-4 justify-end";
           messageDiv.setAttribute("data-role", "user");
           messageDiv.innerHTML = `
-            <div class="mr-3 bg-blue-600 rounded-lg p-4 max-w-3xl">
-              <div class="text-white markdown-content">${marked.parse(
-                message
-              )}</div>
-            </div>
-            <div class="flex-shrink-0">
-              <img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" alt="User" class="w-8 h-8 rounded-full">
-            </div>
-          `;
+                  <div class="mr-3 bg-blue-600 rounded-lg p-4 max-w-3xl">
+                    <div class="text-white markdown-content">${marked.parse(
+                      message
+                    )}</div>
+                  </div>
+                  <div class="flex-shrink-0">
+                    <img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" alt="User" class="w-8 h-8 rounded-full">
+                  </div>
+                `;
           return messageDiv;
         },
 
@@ -299,23 +290,23 @@
           messageDiv.setAttribute("data-message-id", messageId);
 
           messageDiv.innerHTML = `
-            <div class="flex-shrink-0">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2oUOmNfffytXSOZ5ptZ8rgPHgn1msZsDp7XiggkGmXJuaO1RP" alt="AI" class="w-8 h-8 rounded-full">
-            </div>
-            <div class="ml-3 bg-gray-700 rounded-lg p-4 max-w-3xl">
-              <div class="text-gray-200 markdown-content">${marked.parse(
-                message
-              )}</div>
-              <div class="mt-3 flex items-center space-x-3">
-                <button class="copy-btn text-sm text-gray-400 hover:text-blue-400 transition-colors duration-200">
-                  <i class="fas fa-copy mr-1"></i> Copy
-                </button>
-                <button class="regenerate-btn text-sm text-gray-400 hover:text-blue-400 transition-colors duration-200">
-                  <i class="fas fa-redo mr-1"></i> Regenerate
-                </button>
-              </div>
-            </div>
-          `;
+                  <div class="flex-shrink-0">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2oUOmNfffytXSOZ5ptZ8rgPHgn1msZsDp7XiggkGmXJuaO1RP" alt="AI" class="w-8 h-8 rounded-full">
+                  </div>
+                  <div class="ml-3 bg-gray-700 rounded-lg p-4 max-w-3xl">
+                    <div class="text-gray-200 markdown-content">${marked.parse(
+                      message
+                    )}</div>
+                    <div class="mt-3 flex items-center space-x-3">
+                      <button class="copy-btn text-sm text-gray-400 hover:text-blue-400 transition-colors duration-200">
+                        <i class="fas fa-copy mr-1"></i> Copy
+                      </button>
+                      <button class="regenerate-btn text-sm text-gray-400 hover:text-blue-400 transition-colors duration-200">
+                        <i class="fas fa-redo mr-1"></i> Regenerate
+                      </button>
+                    </div>
+                  </div>
+                `;
 
           const copyBtn = messageDiv.querySelector(".copy-btn");
           copyBtn.addEventListener("click", () =>
@@ -342,6 +333,170 @@
           chatHistory.appendChild(messageDiv);
           this.scrollToBottom();
           return messageDiv;
+        },
+
+        formatBytes(bytes) {
+          if (bytes === 0) return "0 Bytes";
+          const k = 1024;
+          const sizes = ["Bytes", "KB", "MB"];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return (
+            Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
+          );
+        },
+
+        addExcelFile(fileData) {
+          const fileDiv = document.createElement("div");
+
+          fileDiv.className = "flex items-start mb-4";
+          fileDiv.setAttribute("data-role", "ai");
+
+          const fileName = fileData.filename;
+          const sheetsCount = fileData.metadata.sheets_count;
+          const sizeFormatted = this.formatBytes(fileData.size_bytes || 0);
+
+          fileDiv.innerHTML = `
+            <div class="flex-shrink-0">
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2oUOmNfffytXSOZ5ptZ8rgPHgn1msZsDp7XiggkGmXJuaO1RP" alt="AI" class="w-8 h-8 rounded-full">
+            </div>
+            <div class="ml-3 bg-gray-700 rounded-lg p-2 max-w-3xl">
+              <div class="flex items-start gap-2.5">
+                  <div class="flex flex-col gap-1">
+                    <div
+                      class="flex flex-col w-full max-w-[300px] leading-1.5 p-2 bg-neutral-secondary-soft rounded-e-base rounded-es-base">
+                      <div
+                        class="flex items-start my-2.5 bg-neutral-tertiary rounded-base p-2">
+                        <div class="me-1.5">
+                          <span
+                            class="flex items-center gap-2 text-sm font-medium text-heading pb-2">
+                            <svg
+                              fill="none"
+                              aria-hidden="true"
+                              class="w-5 h-5 shrink-0"
+                              viewBox="0 0 20 21"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <g clip-path="url(#clip_excel)">
+                                <path
+                                  fill="#E2E5E7"
+                                  d="M5.024.5c-.688 0-1.25.563-1.25 1.25v17.5c0 .688.562 1.25 1.25 1.25h12.5c.687 0 1.25-.563 1.25-1.25V5.5l-5-5h-8.75z" 
+                                <path
+                                  fill="#B0B7BD"
+                                  d="M15.024 5.5h3.75l-5-5v3.75c0 .688.562 1.25 1.25 1.25z" />
+                                <path
+                                  fill="#CAD1D8"
+                                  d="M18.774 9.25l-3.75-3.75h3.75v3.75z" 
+                                <path
+                                  fill="#217346"
+                                  d="M16.274 16.75a.627.627 0 01-.625.625H1.899a.627.627 0 01-.625-.625V10.5c0-.344.281-.625.625-.625h13.75c.344 0 .625.281.625.625v6.25z" 
+                                <path
+                                  fill="#fff"
+                                  d="M5.8 11.5l1.2 1.9 1.2-1.9h1l-1.7 2.5 1.7 2.5h-1l-1.2-2-1.2 2h-1l1.7-2.5-1.7-2.5h1z" 
+                                <path
+                                  fill="#CAD1D8"
+                                  d="M15.649 17.375H3.774V18h11.875a.627.627 0 00.625-.625v-.625a.627.627 0 01-.625.625z" />
+                              </g>
+                              <defs>
+                                <clipPath id="clip_excel">
+                                  <path
+                                    fill="#fff"
+                                    d="M0 0h20v20H0z"
+                                    transform="translate(0 .5)" />
+                                </clipPath>
+                              </defs>
+                            </svg>
+                            ${fileName}
+                          </span>
+                          <span class="flex text-xs font-normal text-heading gap-2">
+                            ${sheetsCount} Hojas
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-hidden="true"
+                              class="self-center"
+                              width="3"
+                              height="4"
+                              viewBox="0 0 3 4"
+                              fill="none">
+                              <circle cx="1.5" cy="2" r="1.5" fill="#6B7280" />
+                            </svg>
+                            ${sizeFormatted}
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-hidden="true"
+                              class="self-center"
+                              width="3"
+                              height="4"
+                              viewBox="0 0 3 4"
+                              fill="none">
+                              <circle cx="1.5" cy="2" r="1.5" fill="#6B7280" />
+                            </svg>
+                            Excel
+                          </span>
+                        </div>
+                        <div class="inline-flex self-center items-center">
+                          <button
+                            class="download-btn text-heading bg-neutral-tertiary box-border border border-transparent hover:bg-neutral-quaternary focus:ring-4 focus:ring-neutral-quaternary font-medium leading-5 rounded-base p-2 focus:outline-none"
+                            type="button">
+                            <svg
+                              class="w-5 h-5"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              viewBox="0 0 24 24">
+                              <path
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 13V4M7 14H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2m-1-5-4 5-4-5m9 8h.01" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          `;
+
+          chatHistory.appendChild(fileDiv);
+          chatHistory.scrollTop = chatHistory.scrollHeight;
+
+          const downloadBtn = chatHistory.querySelector(".download-btn");
+          downloadBtn.addEventListener("click", () =>
+            this.downloadExcel(fileData.content, fileData.filename)
+          );
+        },
+
+        downloadExcel(base64Content, filename) {
+          try {
+            const byteCharacters = atob(base64Content);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], {
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            Messages.appendMessage("Archivo descargado exitosamente", "ai");
+          } catch (error) {
+            Messages.appendMessage(
+              `Error al descargar el archivo: ${error.message}`,
+              "ai"
+            );
+          }
         },
 
         copyMessage(text, button) {
@@ -379,7 +534,6 @@
         },
       };
 
-      
       const WebSocketManager = {
         connect() {
           socket = new WebSocket("ws://localhost:8000/chat/ws");
@@ -389,12 +543,22 @@
           };
 
           socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("Data recibida: ", data);
+
             Messages.removeTypingIndicator();
-            Messages.appendMessage(event.data, "ai");
+
+            if (data.type === "message") {
+              Messages.appendMessage(data.content, "ai");
+            } else if (data.type === "excel_file") {
+              Messages.addExcelFile(data);
+            } else if (data.type === "error") {
+              Messages.appendMessage(data.content, "ai");
+            }
           };
 
           socket.onclose = () => {
-            console.log("Desconectado del servidor");            
+            console.log("Desconectado del servidor");
           };
 
           socket.onerror = (error) => {
@@ -426,7 +590,6 @@
         },
       };
 
-      
       const InputManager = {
         sendMessage() {
           const message = messageInput.value.trim();
@@ -468,14 +631,12 @@
         },
       };
 
-      
       function initApp() {
         Sidebar.init();
         // Sidebar.close();
         InputManager.init();
 
         WebSocketManager.connect();
-        
 
         console.log("Aplicación inicializada correctamente");
       }

@@ -13,8 +13,12 @@ fastapi = "*"
 pyodbc = "*"
 pydantic-settings = "*"
 llama-index-vector-stores-chroma = "*"
+llama-index-vector-stores-qdrant = "*"
+qdrant-client = "*"
+openpyxl = "*"
 
 [dev-packages]
+pyinstaller = "*"
 
 [requires]
 python_version = "3.13"

@@ -60,7 +60,7 @@ class SQLQueryService:
             return query_engine
         except Exception as e:
             raise DomainException(
-                "Failed to initialize SQL query engine",
+                f"Failed to initialize SQL query engine: {str(e)}",
                 details={"tables": self.include_tables, "error": str(e)},
             )
 
@@ -75,7 +75,7 @@ class SQLQueryService:
             return SQLQuery(sql_query=sql_query, response=str(response))
         except Exception as e:
             raise DomainException(
-                "Error al consultar el con NL Query Engine",
+                f"Error al consultar el con NL Query Engine: {str(e)}",
                 details={"user_query": user_query, "error": str(e)},
             )
 

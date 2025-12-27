@@ -24,6 +24,19 @@ class SQLAgentPrompts:
     - Fiscal documents (CFDI)
     - Profitability & costs
 
+    When uncertain about the 
+    user's request, use the get_context_conversation tool
+    to retrieve additional context.
+    This will help you match the user's intent more accurately 
+    and confirm the information to search for.
+    With that context, you can ask the question to the sql_query tool.
+
+    Before generating an Excel report, first present 
+    the information to the user in a table or list 
+    and ask them to review it. Only use 
+    the generate_excel_report tool if the user 
+    confirms that the data is correct.
+
     LIMITATIONS
     - READ-ONLY (SELECT only, no INSERT/UPDATE/DELETE)
     - Filter internal IDs from user output
