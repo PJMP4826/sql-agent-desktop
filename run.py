@@ -26,7 +26,7 @@ def run_app():
     root = get_project_root()
     load_dotenv(root / ".env")
     
-    host = os.getenv("HOST_SERVER", "127.0.0.1")
+    host = os.getenv("HOST_SERVER", "0.0.0.0")
     port = int(os.getenv("PORT_SERVER", 8000))
     url = f"http://{host}:{port}"
     
