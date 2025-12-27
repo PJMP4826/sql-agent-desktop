@@ -22,7 +22,7 @@ def generate_excel_report(data: str, filename: str = "reporte.xlsx") -> dict[str
     try:
         excel_data = json.loads(data)
         
-        print("Data JSON String: ", excel_data)
+        # print("Data JSON String: ", excel_data)
 
         wb = Workbook()
         # remover hoja por defecto
@@ -135,7 +135,7 @@ def generate_excel_report(data: str, filename: str = "reporte.xlsx") -> dict[str
             "sheets_count": len(excel_data.get("sheets", [])),
             "message": f"Excel '{filename}' generado exitosamente con {len(excel_data.get('sheets', []))} hoja(s)",
         }
-        print("Excel generado base64: ", result)
+        # print("Excel generado base64: ", result)
 
         return result
     except json.JSONDecodeError as e:
