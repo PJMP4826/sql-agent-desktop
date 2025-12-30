@@ -18,6 +18,7 @@ qdrant-client = "*"
 openpyxl = "*"
 python-multipart = "*"
 debugpy = "*"
+google-genai = "*"
 
 [dev-packages]
 pyinstaller = "*"
