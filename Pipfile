@@ -17,6 +17,7 @@ llama-index-vector-stores-qdrant = "*"
 qdrant-client = "*"
 openpyxl = "*"
 python-multipart = "*"
+debugpy = "*"
 
 [dev-packages]
 pyinstaller = "*"
