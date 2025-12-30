@@ -38,10 +38,10 @@ def run_app():
             "main:app", 
             host=host, 
             port=port, 
-            reload=False, 
+            reload=True, 
             workers=1,
             use_colors=False,
-            log_config=None
+            log_config=None,
         )
     except Exception as e:
         print(f"\nFATAL ERROR: {e}")
