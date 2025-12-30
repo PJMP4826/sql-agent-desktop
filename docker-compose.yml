@@ -8,6 +8,8 @@ services:
       - .env
     ports:
       - 8000:8000
+    volumes:
+      - .:/code
 
   qdrant:
     image: qdrant/qdrant:latest
