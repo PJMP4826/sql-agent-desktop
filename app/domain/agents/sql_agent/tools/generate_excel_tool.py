@@ -21,8 +21,8 @@ def generate_excel_report(data: str, filename: str = "reporte.xlsx") -> dict[str
     """
     try:
         excel_data = json.loads(data)
-        
-        # print("Data JSON String: ", excel_data)
+
+        print("Data JSON String: ", excel_data)
 
         wb = Workbook()
         # remover hoja por defecto
