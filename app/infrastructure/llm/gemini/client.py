@@ -37,7 +37,7 @@ class GeminiAdapter(LLMPort):
     def get_llm_model_name(self) -> str:
         return self.llm_model_name
     
-    def get_genai_model(self, prompt: str):
+    def generate_content(self, prompt: str) -> str:
         genai_client = genai.Client()
 
         model = genai_client.models.generate_content(
@@ -48,4 +48,8 @@ class GeminiAdapter(LLMPort):
                 response_schema=ExcelReport.model_json_schema()
             )
         )
-        return model
+
+        response = str(model.text)
+        return response
+    
+        
