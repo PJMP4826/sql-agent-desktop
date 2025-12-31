@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     # Database configuration
     db_user: str = Field(..., description="Database username")
-    db_password: int = Field(..., description="Database password")
+    db_password: str = Field(..., description="Database password")
     db_name: str = Field(..., description="Database name")
     db_port: str = Field(default="1433", description="Database port")
     db_host: str = Field(..., description="Database host")
