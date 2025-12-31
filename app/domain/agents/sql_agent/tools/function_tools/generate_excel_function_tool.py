@@ -1,23 +1,14 @@
 from app.domain.agents.sql_agent.tools.generate_excel_tool import generate_excel_report
 from llama_index.core.tools import FunctionTool
-from app.infrastructure.llm.gemini.client import GeminiAdapter
-from app.domain.agents.sql_agent.prompts.format_data_llm_prompts import FormatDataLLMPrompts
+from app.application.ports.llm_port import LLMPort
+from app.domain.agents.sql_agent.prompts.format_data_llm_prompts import (
+    FormatDataLLMPrompts,
+)
 from typing import Any
 from app.domain.schemas.excel_report_schema import ExcelReport
 
 
-from app.config.settings import Settings
-
-
-def create_generate_excel_function_tool() -> FunctionTool:
-    settings = Settings() # type: ignore
-
-    llm_client = GeminiAdapter(
-        llm_model_name=settings.llm_gemini_model,
-        api_key=settings.google_api_key,
-        embed_model=settings.embed_model_name,
-    )
-
+def create_generate_excel_function_tool(llm_client: LLMPort) -> FunctionTool:
     def get_excel_data_from_gemini(query: str, data: str) -> str:
         """
         Usa Gemini con schema controlado para generar datos de Excel
@@ -27,34 +18,34 @@ def create_generate_excel_function_tool() -> FunctionTool:
             print("Data para Gemini: ", data)
 
             prompt = FormatDataLLMPrompts.format_with_context(query=query, data=data)
-            
-            response = llm_client.get_genai_model(prompt=prompt)
+
+            response = llm_client.generate_content(prompt=prompt)
 
             # Gemini retorna JSON valido
-            return str(response.text)
+            return response
         except Exception as e:
             print(f"Error generando datos JSON con Gemini: {str(e)}")
             return f"Error generando datos JSON con Gemini: {str(e)}"
 
-
-    def generate_excel_with_gemini(query: str, data: str, filename: str = "reporte.xlsx") -> dict[str, Any]:
+    def generate_excel_with_gemini(
+        query: str, data: str, filename: str = "reporte.xlsx"
+    ) -> dict[str, Any]:
         try:
             # Obtener datos estructurados de Gemini
             json_data = get_excel_data_from_gemini(query, data)
 
             print("JSON Data Generate Gemini: ", json_data)
-            
+
             ExcelReport.model_validate_json(json_data)
-            
+
             return generate_excel_report(json_data, filename)
-            
+
         except Exception as e:
             return {
                 "type": "error",
                 "success": False,
-                "message": f"Error generando Excel con Gemini: {str(e)}"
+                "message": f"Error generando Excel con Gemini: {str(e)}",
             }
-
 
     tool = FunctionTool.from_defaults(
         fn=generate_excel_with_gemini,
