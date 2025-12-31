@@ -24,7 +24,7 @@ class SQLAgent:
         agent_name: str
     ) -> None:
         self.agent_name: str = agent_name
-        self.llm_client = llm_client.get_llm_model()
+        self.llm_client = llm_client
         self.sql_query_tool = sql_query_tool
         self.get_context_tool = get_context_tool
 
@@ -42,7 +42,7 @@ class SQLAgent:
         sql_tool = create_sql_query_function_tool(self.sql_query_tool)
         date_time_tool = create_current_date_time()
         get_context_conversation_tool = create_get_context_function_tool(self.get_context_tool)
-        generate_excel_report = create_generate_excel_function_tool()
+        generate_excel_report = create_generate_excel_function_tool(self.llm_client)
 
         tools.append(sql_tool)
         tools.append(date_time_tool)
@@ -67,7 +67,7 @@ class SQLAgent:
     def _create_agent(self) -> FunctionAgent:
         agent = FunctionAgent(
             name=self.agent_name,
-            llm=self.llm_client,
+            llm=self.llm_client.get_llm_model(),
             tools=self.tools,
             system_prompt=self.system_prompt,
         )
