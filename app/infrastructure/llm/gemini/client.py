@@ -1,3 +1,5 @@
+from google import genai
+from google.genai import types
 from typing import AsyncGenerator, Generator
 from llama_index.core.llms.llm import LLM
 from app.application.ports.llm_port import LLMPort
@@ -5,6 +7,7 @@ from llama_index.llms.google_genai import GoogleGenAI
 from llama_index.core.base.llms.types import CompletionResponse
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.embeddings.google_genai import GoogleGenAIEmbedding # type: ignore
+from app.domain.schemas.excel_report_schema import ExcelReport
 
 class GeminiAdapter(LLMPort):
 
@@ -33,3 +36,16 @@ class GeminiAdapter(LLMPort):
 
     def get_llm_model_name(self) -> str:
         return self.llm_model_name
+    
+    def get_genai_model(self, prompt: str):
+        genai_client = genai.Client()
+
+        model = genai_client.models.generate_content(
+            model=self.llm_model_name,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=ExcelReport.model_json_schema()
+            )
+        )
+        return model
