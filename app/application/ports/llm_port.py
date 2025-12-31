@@ -19,3 +19,7 @@ class LLMPort(ABC):
     @abstractmethod
     def get_llm_model_name(self) -> str:
         raise NotImplementedError
+    
+    @abstractmethod
+    def generate_content(self, prompt: str) -> str:
+        raise NotImplementedError
