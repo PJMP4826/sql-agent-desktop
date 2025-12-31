@@ -33,6 +33,8 @@ class SQLPrompts:
             4. TOP 20 or user-specified limit
             5. Use UPPER() and LIKE '%' input '%' for text matching (data is uppercase) when necessary
             6. If ambiguous, choose simplest interpretation
+            7. When consulting admDocuments, always construct queries 
+            starting with the fields FECHA, SERIE, FOLIO, RAZON SOCIAL, TOTAL, etc...
 
             SQLQuery:
             """
