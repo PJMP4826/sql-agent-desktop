@@ -33,6 +33,6 @@ COPY Pipfile Pipfile.lock ./
 RUN pipenv install --system --deploy
 
 # resto del codigo
-COPY . .
+# COPY . .
 
 CMD ["python", "run.py"]
