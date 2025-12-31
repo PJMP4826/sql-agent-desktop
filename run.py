@@ -23,6 +23,12 @@ def open_browser(url: str):
     webbrowser.open(url)
 
 def run_app():
+
+    if os.getenv("DEBUG_MODE") == "true":
+        import debugpy
+        debugpy.listen(("0.0.0.0", 5678))
+        print("Waiting for debugger attach on port 5678...")
+        
     root = get_project_root()
     load_dotenv(root / ".env")
     
@@ -38,7 +44,7 @@ def run_app():
             "main:app", 
             host=host, 
             port=port, 
-            reload=True, 
+            reload=os.getenv("DEBUG_MODE", "false").lower() == "true", 
             workers=1,
             use_colors=False,
             log_config=None,
