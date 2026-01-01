@@ -8,15 +8,25 @@ from llama_index.core.base.llms.types import CompletionResponse
 from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.embeddings.google_genai import GoogleGenAIEmbedding # type: ignore
 from app.domain.schemas.excel_report_schema import ExcelReport
+from llama_index.core import Settings
+from app.domain.services.token_counter import TokenCounter
+
 
 class GeminiAdapter(LLMPort):
 
     def __init__(
-        self, llm_model_name: str, api_key: str, embed_model: str
+        self, llm_model_name: str, api_key: str, embed_model: str, toke_counter: TokenCounter
     ) -> None:
+        self.callback_manager = toke_counter.callback_manager
         self.llm_model_name: str = llm_model_name
-        self.llm: LLM = GoogleGenAI(model=llm_model_name, api_key=api_key)
+        self.llm: LLM = GoogleGenAI(
+            model=llm_model_name, 
+            api_key=api_key,
+            callback_manager=self.callback_manager
+        )
         self.embed_model: BaseEmbedding = GoogleGenAIEmbedding(model_name=embed_model, api_key=api_key)
+        Settings.llm = self.llm
+        Settings.embed_model = self.embed_model
 
     def generate_response(self, prompt: str) -> str:
         response = self.llm.complete(prompt)
