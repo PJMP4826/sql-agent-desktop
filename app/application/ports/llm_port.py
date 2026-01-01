@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from llama_index.core.llms.llm import LLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
+from app.domain.services.token_counter import TokenCounter
 
 
 class LLMPort(ABC):
@@ -22,4 +23,8 @@ class LLMPort(ABC):
     
     @abstractmethod
     def generate_content(self, prompt: str) -> str:
+        raise NotImplementedError
+    
+    @abstractmethod
+    def get_token_counter(self) -> TokenCounter:
         raise NotImplementedError
