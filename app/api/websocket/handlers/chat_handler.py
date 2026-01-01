@@ -1,6 +1,7 @@
 from fastapi import WebSocket, WebSocketDisconnect
 from app.api.websocket.connection_manager import ConnectionManager
 from app.config.dependencies import get_sql_agent
+from app.config.dependencies import get_token_counter
 
 
 async def handle_request(websocket: WebSocket) -> str:
@@ -46,6 +47,13 @@ async def handle_agent_response(
         response_txt = result.response_text
 
         print("Response de agent: ", response_txt)
+
+        token_counter = get_token_counter()
+        print(f"\nTotal LLM Prompt Tokens: {token_counter.prompt_llm_token_count()}")
+        print(f"Total LLM Completion Tokens: {token_counter.completion_llm_token_count()}")
+        print(f"Total LLM Tokens: {token_counter.total_llm_token_count()}")
+        print(f"Total Embedding Tokens: {token_counter.total_embedding_token_count()}")
+
         await manager.send_message_json(
             message={"type": "message", "content": str(response_txt)},
             websocket=websocket,
