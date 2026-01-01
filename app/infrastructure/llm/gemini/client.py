@@ -15,9 +15,10 @@ from app.domain.services.token_counter import TokenCounter
 class GeminiAdapter(LLMPort):
 
     def __init__(
-        self, llm_model_name: str, api_key: str, embed_model: str, toke_counter: TokenCounter
+        self, llm_model_name: str, api_key: str, embed_model: str, token_counter: TokenCounter
     ) -> None:
-        self.callback_manager = toke_counter.callback_manager
+        self.token_counter = token_counter
+        self.callback_manager = self.token_counter.callback_manager
         self.llm_model_name: str = llm_model_name
         self.llm: LLM = GoogleGenAI(
             model=llm_model_name, 
@@ -61,5 +62,8 @@ class GeminiAdapter(LLMPort):
 
         response = str(model.text)
         return response
+    
+    def get_token_counter(self) -> TokenCounter:
+        return self.token_counter
     
         
