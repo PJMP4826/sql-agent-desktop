@@ -13,6 +13,7 @@ from app.domain.agents.sql_agent.tools.function_tools.generate_excel_function_to
 from app.domain.value_objects.tool_call_event import ToolCallEvent
 from app.domain.value_objects.tool_result_event import ToolResultEvent
 from app.domain.value_objects.chat_response import ChatResponse
+from app.domain.services.token_counter import TokenCounter
 
 
 class SQLAgent:
@@ -119,3 +120,6 @@ class SQLAgent:
                 success=False,
                 error_message=str(e)
             )
+        
+    def get_token_counter(self) -> TokenCounter:
+        return self.llm_client.get_token_counter()
