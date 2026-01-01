@@ -11,11 +11,6 @@ from functools import lru_cache
 from app.domain.services.token_counter import TokenCounter
 from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 
-_sql_agent: SQLAgent | None = None
-_token_counter: TokenCounter | None = None
-_token_counting_handler: TokenCountingHandler | None = None
-_callback_manager: CallbackManager | None = None
-
 
 @lru_cache
 def get_settings() -> Settings:
@@ -24,76 +19,49 @@ def get_settings() -> Settings:
 
 def get_vector_store() -> QdrantVectorStoreClient:
     settings = get_settings()
-
     return QdrantVectorStoreClient(
         collection_name=settings.qdrant_collection, url=settings.qdrant_url_server
     )
 
 
-def get_token_counting_handler() -> TokenCountingHandler:
-    global _token_counting_handler
-
-    if _token_counting_handler is None:
-        _token_counting_handler = TokenCountingHandler(verbose=True)
-    return _token_counting_handler
+def create_token_counting_handler() -> TokenCountingHandler:
+    return TokenCountingHandler(verbose=True)
 
 
-def get_callback_manager() -> CallbackManager:
-    global _callback_manager
+def create_callback_manager() -> tuple[TokenCountingHandler, CallbackManager]:
+    token_counting_handler = create_token_counting_handler()
 
-    if _callback_manager is None:
-        
-        token_counting_handler = get_token_counting_handler()
-
-        _callback_manager = CallbackManager([token_counting_handler])
-
-    return _callback_manager
+    return token_counting_handler, CallbackManager([token_counting_handler])
 
 
-def get_token_counter() -> TokenCounter:
-    global _token_counter
+def create_token_counter() -> TokenCounter:
+    token_counting_handler, callback_manager = create_callback_manager()
 
-    token_counting_handler = get_token_counting_handler()
-    callback_manager = get_callback_manager()
-
-    if _token_counter is None:
-        _token_counter = TokenCounter(
-            token_counting_handler=token_counting_handler,
-            callback_manager=callback_manager,
-        )
-
-    return _token_counter
+    return TokenCounter(
+        token_counting_handler=token_counting_handler,
+        callback_manager=callback_manager,
+    )
 
 
-def get_llm_client() -> GeminiAdapter:
+def create_llm_client() -> GeminiAdapter:
     settings = get_settings()
 
     return GeminiAdapter(
         llm_model_name=settings.llm_gemini_model,
         api_key=settings.google_api_key,
         embed_model=settings.embed_model_name,
-        toke_counter=get_token_counter(),
+        token_counter=create_token_counter(),
     )
 
 
-def get_sql_agent() -> SQLAgent:
+def create_sql_agent() -> SQLAgent:
     settings = get_settings()
 
-    global _sql_agent
+    factory = SQLAgentFactory(
+        llm_client=create_llm_client(), vector_store=get_vector_store()
+    )
 
-    if _sql_agent is None:
-        factory = SQLAgentFactory(
-            llm_client=get_llm_client(), vector_store=get_vector_store()
-        )
-
-        _sql_agent = factory.create_sql_agent(settings.agent_sql_name)
-
-    return _sql_agent
-
-
-def reset_sql_agent():
-    global _sql_agent
-    _sql_agent = None
+    return factory.create_sql_agent(settings.agent_sql_name)
 
 
 def get_document_repository() -> DocumentRepository:
@@ -102,5 +70,4 @@ def get_document_repository() -> DocumentRepository:
 
 def get_document_controller() -> DocumentController:
     repository = get_document_repository()
-
     return DocumentController(repository=repository)
