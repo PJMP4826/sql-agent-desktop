@@ -8,8 +8,13 @@ from app.api.http.controllers.document_controller import DocumentController
 from app.domain.repositories.document_repository import DocumentRepository
 from app.config.settings import Settings
 from functools import lru_cache
+from app.domain.services.token_counter import TokenCounter
+from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 
 _sql_agent: SQLAgent | None = None
+_token_counter: TokenCounter | None = None
+_token_counting_handler: TokenCountingHandler | None = None
+_callback_manager: CallbackManager | None = None
 
 
 @lru_cache
@@ -25,6 +30,41 @@ def get_vector_store() -> QdrantVectorStoreClient:
     )
 
 
+def get_token_counting_handler() -> TokenCountingHandler:
+    global _token_counting_handler
+
+    if _token_counting_handler is None:
+        _token_counting_handler = TokenCountingHandler(verbose=True)
+    return _token_counting_handler
+
+
+def get_callback_manager() -> CallbackManager:
+    global _callback_manager
+
+    if _callback_manager is None:
+        
+        token_counting_handler = get_token_counting_handler()
+
+        _callback_manager = CallbackManager([token_counting_handler])
+
+    return _callback_manager
+
+
+def get_token_counter() -> TokenCounter:
+    global _token_counter
+
+    token_counting_handler = get_token_counting_handler()
+    callback_manager = get_callback_manager()
+
+    if _token_counter is None:
+        _token_counter = TokenCounter(
+            token_counting_handler=token_counting_handler,
+            callback_manager=callback_manager,
+        )
+
+    return _token_counter
+
+
 def get_llm_client() -> GeminiAdapter:
     settings = get_settings()
 
@@ -32,6 +72,7 @@ def get_llm_client() -> GeminiAdapter:
         llm_model_name=settings.llm_gemini_model,
         api_key=settings.google_api_key,
         embed_model=settings.embed_model_name,
+        toke_counter=get_token_counter(),
     )
 
 
