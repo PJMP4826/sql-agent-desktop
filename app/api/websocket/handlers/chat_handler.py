@@ -1,7 +1,7 @@
 from fastapi import WebSocket, WebSocketDisconnect
 from app.api.websocket.connection_manager import ConnectionManager
-from app.config.dependencies import get_sql_agent
-from app.config.dependencies import get_token_counter
+from app.domain.agents.sql_agent.sql_agent import SQLAgent
+from app.domain.services.token_counter import TokenCounter
 
 
 async def handle_request(websocket: WebSocket) -> str:
@@ -28,10 +28,13 @@ async def validate_user_input(
 
 
 async def handle_agent_response(
-    user_input: str, manager: ConnectionManager, websocket: WebSocket
+    user_input: str,
+    manager: ConnectionManager,
+    websocket: WebSocket,
+    sql_agent: SQLAgent,
+    token_counter: TokenCounter,
 ):
     try:
-        sql_agent = get_sql_agent()
 
         # await manager.send_message("Escribiendo...", websocket)
 
@@ -48,9 +51,10 @@ async def handle_agent_response(
 
         print("Response de agent: ", response_txt)
 
-        token_counter = get_token_counter()
         print(f"\nTotal LLM Prompt Tokens: {token_counter.prompt_llm_token_count()}")
-        print(f"Total LLM Completion Tokens: {token_counter.completion_llm_token_count()}")
+        print(
+            f"Total LLM Completion Tokens: {token_counter.completion_llm_token_count()}"
+        )
         print(f"Total LLM Tokens: {token_counter.total_llm_token_count()}")
         print(f"Total Embedding Tokens: {token_counter.total_embedding_token_count()}")
 

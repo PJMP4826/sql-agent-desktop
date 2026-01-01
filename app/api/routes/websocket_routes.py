@@ -2,6 +2,7 @@ from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from app.api.websocket.connection_manager import ConnectionManager
 from app.api.websocket.handlers.chat_handler import handle_request, validate_user_input, handle_agent_response
 import logging
+from app.config.dependencies import create_sql_agent
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,9 @@ manager = ConnectionManager()
 async def websocket_endpoint(websocket: WebSocket):
     client_id = id(websocket)
     logger.info(f"Nuevo WebSocket conexion client_id: {client_id}")
+
+    sql_agent = create_sql_agent()
+    token_counter = sql_agent.get_token_counter()
 
     try:
         await manager.connect(websocket)
@@ -25,7 +29,13 @@ async def websocket_endpoint(websocket: WebSocket):
             if not puede_procesar:
                 continue
 
-            await handle_agent_response(user_input, manager, websocket)
+            await handle_agent_response(
+                user_input, 
+                manager, 
+                websocket,
+                sql_agent,
+                token_counter
+            )
 
     except WebSocketDisconnect as e:
         logger.info(f"Client {client_id} desconectado: code={e.code}")
