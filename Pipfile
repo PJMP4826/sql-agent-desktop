@@ -19,6 +19,7 @@ openpyxl = "*"
 python-multipart = "*"
 debugpy = "*"
 google-genai = "*"
+alembic = "*"
 
 [dev-packages]
 pyinstaller = "*"
