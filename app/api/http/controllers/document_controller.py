@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import UploadFile
 from fastapi.responses import JSONResponse
-from app.domain.repositories.document_repository import DocumentRepository
+from app.infrastructure.repositories.document_repository import DocumentRepository
 
 
 class DocumentController:
