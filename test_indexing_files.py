@@ -5,28 +5,67 @@ from app.infrastructure.llm.gemini.client import GeminiAdapter
 from app.config.settings import Settings
 from app.domain.agents.rag_agent.prompts.system_prompts import RagPrompts
 import logging
+from functools import lru_cache
+from app.domain.services.token_counter import TokenCounter
+from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
+
 
 logging.basicConfig(
     level=logging.INFO,
 )
+
 logger = logging.getLogger(__name__)
 settings = Settings() # type: ignore
     
 logger.info(f"Modelo LLM: {settings.llm_gemini_model}")
 logger.info(f"Modelo Embed: {settings.embed_model_name}")
 
-vector_store = QdrantVectorStoreClient(
-    collection_name='test_collection'
-)
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()  # type: ignore
+
+def get_vector_store() -> QdrantVectorStoreClient:
+    settings = get_settings()
+    return QdrantVectorStoreClient(
+        collection_name=settings.qdrant_collection, url=settings.qdrant_url_server
+    )
+
+vector_store = get_vector_store()
 
 logger.info(f"Vector store inicializado. Conteo: {vector_store.get_collection_count()}")
 
-try:
-    gemini_client = GeminiAdapter(
+
+def create_token_counting_handler() -> TokenCountingHandler:
+    return TokenCountingHandler(verbose=True)
+
+
+def create_callback_manager() -> tuple[TokenCountingHandler, CallbackManager]:
+    token_counting_handler = create_token_counting_handler()
+
+    return token_counting_handler, CallbackManager([token_counting_handler])
+
+
+def create_token_counter() -> TokenCounter:
+    token_counting_handler, callback_manager = create_callback_manager()
+
+    return TokenCounter(
+        token_counting_handler=token_counting_handler,
+        callback_manager=callback_manager,
+    )
+
+
+def create_llm_client() -> GeminiAdapter:
+    settings = get_settings()
+
+    return GeminiAdapter(
         llm_model_name=settings.llm_gemini_model,
         api_key=settings.google_api_key,
-        embed_model=settings.embed_model_name
+        embed_model=settings.embed_model_name,
+        token_counter=create_token_counter(),
     )
+
+try:
+    gemini_client = create_llm_client()
     logger.info("Cliente Gemini inicializado exitosamente")
 except Exception as e:
     logger.error(f"Fallo al inicializar Gemini: {e}")
@@ -40,7 +79,7 @@ rag_factory = RagServiceFactory(
     llm_client=gemini_client,
 )
 
-classifier_rag = rag_factory.create_classifier_rag()
+classifier_rag = rag_factory.create_general_rag()
 
 def main():
     try:
@@ -112,4 +151,4 @@ def test_rag():
 
 
 if __name__ == "__main__":
-    main()
+    test_rag()
