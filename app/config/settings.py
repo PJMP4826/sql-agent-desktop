@@ -35,25 +35,13 @@ class Settings(BaseSettings):
     db_port: str = Field(default="1433", description="Database port")
     db_host: str = Field(..., description="Database host")
 
-    # Vector Store Configuration
-    qdrant_collection: str = Field(..., description="Qdrant collection name")
-    qdrant_url_server: str = Field(
-        ..., description="Url del servidor de Vector Store de Qdrant"
-    )
+    # RAG Client Configuration
+    rag_client_base_url: str = Field(..., description="URL base de los endpoints")
 
     # Agents Configurations
     agent_sql_name: str = Field(..., description="Nombre de Agent SQL")
 
-    # Application Paths
-    docs_path: str = Field(
-        default=str(BASE_DIR / "books"), description="Path documents directory"
-    )
-    # storage_path: str = Field(
-    #     default="./storage", description="Path application storage"
-    # )
-    # sql_index_path: str = Field(
-    #     default="./storage/sql_index", description="Path SQL index storage"
-    # )
+    
 
     @property
     def database_url(self) -> str:
@@ -62,19 +50,5 @@ class Settings(BaseSettings):
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
             f"?driver=ODBC+Driver+17+for+SQL+Server"
         )
-
-    @property
-    def docs_path_resolved(self) -> Path:
-        return Path(self.docs_path).resolve()
-
-    # @property
-    # def storage_path_resolved(self) -> Path:
-    #     return Path(self.storage_path).resolve()
-
-  
-    # @property
-    # def sql_index_path_resolved(self) -> Path:
-    #     return Path(self.sql_index_path).resolve()
-
 
 settings = Settings()  # type: ignore
