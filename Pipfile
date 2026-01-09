@@ -20,6 +20,7 @@ python-multipart = "*"
 debugpy = "*"
 google-genai = "*"
 alembic = "*"
+websocket-client = "*"
 
 [dev-packages]
 pyinstaller = "*"
