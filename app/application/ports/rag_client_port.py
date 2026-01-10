@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class RAG_CLIENT_PORT(ABC):
+class RagClientPort(ABC):
     @abstractmethod
     def chat(self, question: str) -> str:
         raise NotImplementedError
