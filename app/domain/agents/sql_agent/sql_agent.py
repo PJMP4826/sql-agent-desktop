@@ -21,13 +21,13 @@ class SQLAgent:
         self,
         llm_client: LLMPort,
         sql_query_tool: SQLQueryTool,
-        get_context_tool: GetContextConversation,
+        # get_context_tool: GetContextConversation,
         agent_name: str
     ) -> None:
         self.agent_name: str = agent_name
         self.llm_client = llm_client
         self.sql_query_tool = sql_query_tool
-        self.get_context_tool = get_context_tool
+        # self.get_context_tool = get_context_tool
 
         self.system_prompt = SQLAgentPrompts.get_prompt()
 
@@ -42,12 +42,12 @@ class SQLAgent:
 
         sql_tool = create_sql_query_function_tool(self.sql_query_tool)
         date_time_tool = create_current_date_time()
-        get_context_conversation_tool = create_get_context_function_tool(self.get_context_tool)
+        # get_context_conversation_tool = create_get_context_function_tool(self.get_context_tool)
         generate_excel_report = create_generate_excel_function_tool(self.llm_client)
 
         tools.append(sql_tool)
         tools.append(date_time_tool)
-        tools.append(get_context_conversation_tool)
+        # tools.append(get_context_conversation_tool)
         tools.append(generate_excel_report)
 
         return tools
