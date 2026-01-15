@@ -1,6 +1,3 @@
-from app.infrastructure.database.vector_store.qdrant_client import (
-    QdrantVectorStoreClient,
-)
 from app.infrastructure.llm.gemini.client import GeminiAdapter
 from app.domain.factories.sql_agent_factory import SQLAgentFactory
 from app.domain.agents.sql_agent.sql_agent import SQLAgent
@@ -16,12 +13,6 @@ from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 def get_settings() -> Settings:
     return Settings()  # type: ignore
 
-
-def get_vector_store() -> QdrantVectorStoreClient:
-    settings = get_settings()
-    return QdrantVectorStoreClient(
-        collection_name=settings.qdrant_collection, url=settings.qdrant_url_server
-    )
 
 
 def create_token_counting_handler() -> TokenCountingHandler:
@@ -58,10 +49,10 @@ def create_sql_agent() -> SQLAgent:
     settings = get_settings()
 
     factory = SQLAgentFactory(
-        llm_client=create_llm_client(), vector_store=get_vector_store()
+        llm_client=create_llm_client()
     )
 
-    return factory.create_sql_agent(settings.agent_sql_name)
+    return factory.create_sql_agent(settings, settings.agent_sql_name)
 
 
 def get_document_repository() -> DocumentRepository:
