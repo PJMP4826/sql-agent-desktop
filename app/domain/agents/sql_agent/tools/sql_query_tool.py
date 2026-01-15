@@ -1,12 +1,13 @@
 import logging
-from app.domain.services.context_builder import ContextBuilder
-from app.domain.factories.rag_factory import RagServiceFactory
+import json
 from app.domain.services.table_classifier import TableClassifier
 from app.domain.services.sql_query_service import SQLQueryService
 from app.application.ports.llm_port import LLMPort
 from app.infrastructure.database.sql.sql_database_adapter import SQLDatabaseAdapter
 from app.infrastructure.database.sql.connection_manager import ConnetionManager
 from app.shared.domain_exceptions import DomainException
+from app.application.ports.rag_client_port import RagClientPort
+from typing import Any
 
 
 logging.basicConfig(level=logging.INFO)
@@ -16,36 +17,37 @@ logger = logging.getLogger(__name__)
 class SQLQueryTool:
     def __init__(
         self,
-        context_builder: ContextBuilder,
-        table_classifier: TableClassifier,
-        rag_factory: RagServiceFactory,
+        rag_service: RagClientPort,
         llm_client: LLMPort,
         connection_manager: ConnetionManager,
         sql_adapter: SQLDatabaseAdapter,
+        table_classifier: TableClassifier
     ) -> None:
-        self.context_builder = context_builder
-        self.table_classifier = table_classifier
-        self.rag_factory = rag_factory
-
-        self.llm_client: LLMPort = llm_client
+        self._rag_service = rag_service
+        self.llm_client = llm_client
         self.connection_manager = connection_manager
         self.sql_adapter = sql_adapter
+        self.table_classifier = table_classifier
 
     def execute_nl_query(self, query: str, verbose: bool = False) -> str:
         try:
-            include_tables = self._parse_includes_tables(user_input=query)
+            rag_response = self._get_context_rag(query=query)
+
+            inferred_tables = rag_response.get("content").get("inferred_tables") # type: ignore
+
+            include_tables = self._parse_includes_tables(inferred_tables=inferred_tables)
 
             if not include_tables:
                 logger.error("No se pudieron identificar tablas relevantes")
 
-            business_context = self._create_business_context(
-                user_input=query, tables_list=include_tables
-            )
+            business_context = rag_response.get("content").get("business_context") # type: ignore
+            
+            print(f"BUSINESS CONTEXT: {business_context}")
 
             # consulatar a la db usando lenguaje natural
             sql_query_service = self._create_sql_service(
                 include_tables=include_tables,
-                business_context=business_context,
+                business_context=str(business_context),
                 verbose_sql=verbose,
             )
 
@@ -59,41 +61,32 @@ class SQLQueryTool:
                 f"Error ejecutand NL query: {str(e)}",
                 details={"success": False, "error": str(e), "user_input": query},
             )
+    
+    def _get_context_rag(self, query: str) -> dict[str, Any]:
+        try:
+            response = self._rag_service.query(query=query)
 
-    def _parse_includes_tables(self, user_input: str) -> list[str]:
+            data = json.loads(response)
+
+            return data
+        except Exception as e:
+            raise DomainException(
+                f"Error obteniendo contexto desde el API RAG: {str(e)}"
+            )
+
+    def _parse_includes_tables(self, inferred_tables: list[str]) -> list[str]:
         try:
 
-            classifier_rag = self.rag_factory.create_classifier_rag()
-
-            # obtener respuesta del rag con rol clasificador
-            tables_inferidas = classifier_rag.chat(user_input)
-
             # parsear y validar tablas
-            table_list = self.table_classifier.inferir_tables(tables_inferidas)
+            table_list = self.table_classifier.inferir_tables(inferred_tables)
 
             return table_list
         except Exception as e:
             raise DomainException(
                 "Error indentificando tables relevantes",
-                details={"user_input": user_input, "error": str(e)},
+                details={"inferred_tables": inferred_tables, "error": str(e)},
             )
 
-    def _create_business_context(self, user_input: str, tables_list: list[str]) -> str:
-        try:
-            business_context = self.context_builder.build_context(
-                user_query=user_input, selected_tables=tables_list
-            )
-
-            return business_context
-        except Exception as e:
-            raise DomainException(
-                "Error creando business context",
-                details={
-                    "user_input": user_input,
-                    "tables": tables_list,
-                    "error": str(e),
-                },
-            )
 
     def _create_sql_service(
         self,
