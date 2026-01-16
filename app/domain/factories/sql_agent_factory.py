@@ -10,6 +10,8 @@ from app.infrastructure.websocket.websocket_client import WebSocketClient
 from app.infrastructure.services.rag_client_service import RagClientService
 from app.config.settings import Settings
 from app.config.api_endpoints import ApiEndpoints
+from app.infrastructure.services.json_to_toon import JSONtoTOON
+
 
 logger = logging.getLogger(__name__)
 
@@ -52,13 +54,16 @@ class SQLAgentFactory:
 
             rag_service = RagClientService(ws_client=ws)
 
+            converter_json_to_toon = JSONtoTOON()
+
             # Crear SQL Query Tool
             sql_query_tool = SQLQueryTool(
                 llm_client=self.llm_client,
                 connection_manager=connection_manager,
                 sql_adapter=sql_adapter,
                 rag_service=rag_service,
-                table_classifier=table_classifier
+                table_classifier=table_classifier,
+                converter=converter_json_to_toon
             )
 
             # get_context_tool = GetContextConversation(
