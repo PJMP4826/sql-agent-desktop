@@ -3,7 +3,7 @@ from typing import Optional, Any
 from llama_index.core import VectorStoreIndex
 from llama_index.core import StorageContext
 from app.application.ports.vector_store_port import VectorStorePort
-from app.domain.services.document_manager import DocumentManager
+from app.infrastructure.services.document_manager import DocumentManager
 from app.shared.domain_exceptions import DomainException
 from app.config.settings import Settings
 from llama_index.core.indices.base import BaseIndex

@@ -1,4 +1,4 @@
-from app.domain.services.sql_query_service import SQLQueryService
+from app.infrastructure.services.sql_query_service import SQLQueryService
 from app.infrastructure.llm.gemini.client import GeminiAdapter
 from app.config.settings import Settings
 from app.infrastructure.database.sql.connection_manager import ConnetionManager

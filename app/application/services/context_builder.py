@@ -1,6 +1,6 @@
 import logging
-from app.domain.services.rag_service import RagService
-from app.domain.agents.rag_agent.prompts.task_prompts import TaskPrompts
+from app.infrastructure.services.rag_service import RagService
+from app.application.agents.rag_agent.prompts.task_prompts import TaskPrompts
 from app.domain.value_objects.table_relationship_maper import TableRelationshipMap
 from app.shared.domain_exceptions import DomainException
 

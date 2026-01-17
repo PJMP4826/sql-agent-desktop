@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any
 from app.domain.services.table_classifier import TableClassifier
-from app.domain.services.sql_query_service import SQLQueryService
+from app.infrastructure.services.sql_query_service import SQLQueryService
 from app.application.ports.llm_port import LLMPort
 from app.infrastructure.database.sql.sql_database_adapter import SQLDatabaseAdapter
 from app.infrastructure.database.sql.connection_manager import ConnetionManager

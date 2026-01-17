@@ -1,4 +1,4 @@
-from app.domain.services.rag_service import RagService
+from app.infrastructure.services.rag_service import RagService
 from app.application.ports.vector_store_port import VectorStorePort
 from app.application.ports.llm_port import LLMPort
 from app.domain.agents.rag_agent.prompts.system_prompts import RagPrompts

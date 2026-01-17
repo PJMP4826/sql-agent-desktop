@@ -1,7 +1,8 @@
 from fastapi import WebSocket, WebSocketDisconnect
 from app.api.websocket.connection_manager import ConnectionManager
-from app.domain.agents.sql_agent.sql_agent import SQLAgent
-from app.domain.services.token_counter import TokenCounter
+from app.application.agents.sql_agent.sql_agent import SQLAgent
+from app.infrastructure.services.token_counter import TokenCounter
+from app.application.services.excel_result_extractor import ExcelResultExtractor
 
 
 async def handle_request(websocket: WebSocket) -> str:
@@ -38,16 +39,18 @@ async def handle_agent_response(
 
         # await manager.send_message("Escribiendo...", websocket)
 
-        result = await sql_agent.chat(user_input=user_input)
+        response = await sql_agent.chat(user_input=user_input)
 
-        if result.has_excel_file():
-            excel_file = result.get_excel_files()
+        extractor = ExcelResultExtractor()
+
+        if extractor.has_excel(response=response):
+            excel_file = extractor.get_excel_file(response=response)
             await manager.send_message_json(
                 message=excel_file.to_websocket_message(),
                 websocket=websocket,
             )
 
-        response_txt = result.response_text
+        response_txt = response.response_text
 
         print("Response de agent: ", response_txt)
 

@@ -6,7 +6,7 @@ from app.config.settings import Settings
 from app.domain.agents.rag_agent.prompts.system_prompts import RagPrompts
 import logging
 from functools import lru_cache
-from app.domain.services.token_counter import TokenCounter
+from app.infrastructure.services.token_counter import TokenCounter
 from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 
 

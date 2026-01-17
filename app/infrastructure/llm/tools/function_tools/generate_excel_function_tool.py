@@ -1,7 +1,7 @@
-from app.domain.agents.sql_agent.tools.generate_excel_tool import generate_excel_report
+from app.infrastructure.llm.tools.generate_excel_tool import generate_excel_report
 from llama_index.core.tools import FunctionTool
 from app.application.ports.llm_port import LLMPort
-from app.domain.agents.sql_agent.prompts.format_data_llm_prompts import (
+from app.application.agents.sql_agent.prompts.format_data_llm_prompts import (
     FormatDataLLMPrompts,
 )
 from typing import Any

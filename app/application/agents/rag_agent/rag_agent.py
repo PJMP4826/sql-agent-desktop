@@ -1,13 +1,12 @@
 from app.application.ports.vector_store_port import VectorStorePort
 from app.application.ports.llm_port import LLMPort
-from app.domain.agents.rag_agent.prompts.system_prompts import RagPrompts
-from app.domain.agents.base.agent import Agent
-from app.domain.services.rag_service import RagService
+from app.application.agents.rag_agent.prompts.system_prompts import RagPrompts
+from app.infrastructure.services.rag_service import RagService
 from app.shared.domain_exceptions import DomainException
 from typing import Dict, Any
 
 
-class RagAgent(Agent):
+class RagAgent():
     def __init__(
         self, vector_store: VectorStorePort, llm_client: LLMPort, agent_type: str
     ) -> None:

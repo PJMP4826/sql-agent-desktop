@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from llama_index.core.llms.llm import LLM
 from llama_index.core.base.embeddings.base import BaseEmbedding
-from app.domain.services.token_counter import TokenCounter
+from app.infrastructure.services.token_counter import TokenCounter
 
 
 class LLMPort(ABC):

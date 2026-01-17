@@ -1,4 +1,4 @@
-from app.domain.services.context_builder import ContextBuilder
+from app.application.services.context_builder import ContextBuilder
 from app.infrastructure.database.vector_store.chroma_client import ChromaClient
 from app.infrastructure.llm.gemini.client import GeminiAdapter
 from app.config.settings import Settings

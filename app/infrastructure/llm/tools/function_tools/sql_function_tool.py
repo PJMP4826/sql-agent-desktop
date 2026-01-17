@@ -1,5 +1,5 @@
 from llama_index.core.tools import FunctionTool
-from app.domain.agents.sql_agent.tools.sql_query_tool import SQLQueryTool
+from app.infrastructure.llm.tools.sql_query_tool import SQLQueryTool
 
 
 def create_sql_query_function_tool(sql_query_tool: SQLQueryTool) -> FunctionTool:

@@ -1,6 +1,6 @@
 from app.infrastructure.database.vector_store.chroma_client import ChromaClient
 from app.infrastructure.llm.gemini.client import GeminiAdapter
-from app.domain.factories.sql_agent_factory import SQLAgentFactory
+from app.infrastructure.factories.sql_agent_factory import SQLAgentFactory
 from app.config.settings import Settings
 import logging
 import asyncio

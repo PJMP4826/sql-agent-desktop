@@ -1,4 +1,4 @@
-from app.domain.agents.sql_agent.tools.get_context_conversation import GetContextConversation
+from app.infrastructure.llm.tools.get_context_conversation import GetContextConversation
 
 from llama_index.core.tools import FunctionTool
 

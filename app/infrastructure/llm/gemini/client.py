@@ -9,7 +9,7 @@ from llama_index.core.base.embeddings.base import BaseEmbedding
 from llama_index.embeddings.google_genai import GoogleGenAIEmbedding # type: ignore
 from app.domain.schemas.excel_report_schema import ExcelReport
 from llama_index.core import Settings
-from app.domain.services.token_counter import TokenCounter
+from app.infrastructure.services.token_counter import TokenCounter
 
 
 class GeminiAdapter(LLMPort):

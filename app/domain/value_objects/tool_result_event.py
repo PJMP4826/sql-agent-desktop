@@ -1,6 +1,6 @@
 from typing import Any
 from dataclasses import dataclass, asdict
-from llama_index.core.tools import ToolOutput
+from app.infrastructure.adapters.llamaindex_tool_result import LlamaIndexToolResultAdapter
 
 
 @dataclass
@@ -8,7 +8,7 @@ class ToolResultEvent:
     """para resultados de herramientas"""
 
     tool_name: str
-    tool_output: ToolOutput
+    tool_output: LlamaIndexToolResultAdapter
     success: bool = True
     error_message: str | None = None
 
