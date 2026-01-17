@@ -4,7 +4,7 @@ from llama_index.core.query_engine import NLSQLTableQueryEngine
 from llama_index.core import SQLDatabase
 from llama_index.core.prompts import PromptTemplate
 from app.application.ports.llm_port import LLMPort
-from app.domain.agents.sql_agent.prompts.sql_prompts import SQLPrompts
+from app.application.agents.sql_agent.prompts.sql_prompts import SQLPrompts
 
 logger = logging.getLogger(__name__)
 

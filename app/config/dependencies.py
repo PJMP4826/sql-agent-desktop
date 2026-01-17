@@ -1,6 +1,6 @@
 from app.infrastructure.llm.gemini.client import GeminiAdapter
 from app.infrastructure.factories.sql_agent_factory import SQLAgentFactory
-from app.domain.agents.sql_agent.sql_agent import SQLAgent
+from app.application.agents.sql_agent.sql_agent import SQLAgent
 from app.api.http.controllers.document_controller import DocumentController
 from app.infrastructure.repositories.document_repository import DocumentRepository
 from app.config.settings import Settings
